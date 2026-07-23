@@ -7,6 +7,7 @@ import {
   BarChart3,
   Settings,
   Sparkles,
+  FileText,
 } from 'lucide-react';
 
 const navItems = [
@@ -15,6 +16,7 @@ const navItems = [
   { to: '/skills', icon: GraduationCap, label: 'Skills' },
   { to: '/interviews', icon: MessageSquare, label: 'Mock Interviews' },
   { to: '/analytics', icon: BarChart3, label: 'Analytics' },
+  { to: '/resume-analysis', icon: FileText, label: 'Resume Analysis' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 
