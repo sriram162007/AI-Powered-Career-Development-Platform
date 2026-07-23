@@ -1,0 +1,5 @@
+
+> ai-powered-career-development-platform@0.0.0 dev:server
+> node server/index.js
+
+Resume analyzer backend running on http://localhost:3001

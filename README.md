@@ -1,32 +1,63 @@
-# React + TypeScript + Vite
+# AI-Powered Career Development Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+## Environment Setup
 
-Currently, two official plugins are available:
+This project uses Firebase for Google Sign-In authentication. Create a `.env` file in the project root with the following variables:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```env
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+You can get these values from the [Firebase Console](https://console.firebase.google.com/) → Project Settings → General → Your apps → Web app.
+
+After adding the `.env` file, restart the dev server.
+
+<environment_details>
+Current time: 2026-07-24T01:25:02+05:30
+Working directory: C:\Users\Vichu\Downloads\AI Powered Career Development Platform
+Workspace root folder: C:\Users\Vichu\Downloads\AI Powered Career Development Platform
+Open tabs:
+  .gitignore
+  tsconfig.node.json
+  package.json
+  src/pages/student/ResumeAnalysis.tsx
+  .oxlintrc.json
+  src/components/layout/Sidebar.tsx
+  vite.config.ts
+  src/index.css
+  src/App.tsx
+  src/pages/LandingPage.tsx
+  src/router.tsx
+  src/pages/student/Dashboard.tsx
+  tsconfig.app.json
+  tsconfig.json
+</environment_details>
+
+## Getting Started
+
+```bash
+npm install
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+```
+
+## Tech Stack
+
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+- Firebase
+- Framer Motion
+- Lucide React

@@ -59,7 +59,7 @@ export function LandingNavbar() {
             <Link to="/login">
               <Button variant="secondary" size="sm" className="bg-white/10 border-white/10 text-white hover:bg-white/20">Login</Button>
             </Link>
-            <Link to="/register">
+            <Link to="/login">
               <Button size="sm">Get Started</Button>
             </Link>
           </div>
@@ -88,7 +88,7 @@ export function LandingNavbar() {
               <Link to="/login" onClick={() => setMobileOpen(false)}>
                 <Button variant="secondary" size="sm" className="w-full bg-white/10 border-white/10 text-white hover:bg-white/20">Login</Button>
               </Link>
-              <Link to="/register" onClick={() => setMobileOpen(false)}>
+              <Link to="/login" onClick={() => setMobileOpen(false)}>
                 <Button size="sm" className="w-full">Get Started</Button>
               </Link>
             </div>

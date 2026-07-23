@@ -8,7 +8,7 @@ import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import { CircularProgress } from "@/components/dashboard/CircularProgress";
 
-type AnalysisState = "idle" | "analyzing" | "done";
+type AnalysisState = "idle" | "analyzing" | "done" | "error";
 
 interface SkillItem {
   name: string;
@@ -44,54 +44,11 @@ interface AnalysisResult {
   summary: string;
 }
 
-const dummyAnalysis: AnalysisResult = {
-  resumeScore: 87,
-  atsScore: 82,
-  industryMatch: 91,
-  topIndustry: "Software Engineering",
-  skillsDetected: [
-    { name: "React", level: "Expert", category: "Frontend" },
-    { name: "TypeScript", level: "Expert", category: "Languages" },
-    { name: "Node.js", level: "Intermediate", category: "Backend" },
-    { name: "Python", level: "Intermediate", category: "Languages" },
-    { name: "AWS", level: "Intermediate", category: "Cloud" },
-    { name: "PostgreSQL", level: "Beginner", category: "Database" },
-    { name: "Docker", level: "Intermediate", category: "DevOps" },
-    { name: "GraphQL", level: "Beginner", category: "API" },
-  ],
-  missingSkills: [
-    "Kubernetes",
-    "CI/CD Pipelines",
-    "System Design",
-    "Microservices Architecture",
-    "Redis",
-    "Terraform",
-  ],
-  strengths: [
-    { title: "Strong Technical Foundation", detail: "Demonstrates proficiency in modern frontend and backend technologies with hands-on project experience." },
-    { title: "Clear Career Progression", detail: "Shows consistent growth from junior to mid-level responsibilities with measurable impact." },
-    { title: "Quantified Achievements", detail: "Key accomplishments are backed by metrics (e.g., 40% performance improvement, 2x throughput increase)." },
-    { title: "Modern Tech Stack", detail: "Resume reflects current industry tools and frameworks, aligning with market demand." },
-  ],
-  weaknesses: [
-    { title: "Limited Cloud-Native Experience", detail: "Lacks deep exposure to container orchestration and infrastructure-as-code practices." },
-    { title: "Soft Skills Visibility", detail: "Leadership, communication, and cross-functional collaboration are not prominently featured." },
-    { title: "No Open Source Contributions", detail: "Missing community engagement metrics that signal passion and peer validation." },
-  ],
-  improvements: [
-    { title: "Add a Certifications Section", detail: "Include AWS Certified Developer or equivalent to strengthen cloud credibility." },
-    { title: "Highlight System Design Projects", detail: "Add 1-2 architecture-focused case studies demonstrating scalability thinking." },
-    { title: "Quantify Team Impact", detail: "Mention team size, mentorship activities, or stakeholder management to showcase leadership." },
-    { title: "Optimize ATS Keywords", detail: "Incorporate role-specific keywords from target job descriptions to improve parsing accuracy." },
-  ],
-  summary:
-    "Your resume is strong overall with an 87/100 quality score and solid ATS compatibility. Focus on cloud-native skills and quantified leadership examples to reach the top tier.",
-};
-
 export default function ResumeAnalysis() {
   const [state, setState] = useState<AnalysisState>("idle");
   const [fileName, setFileName] = useState<string | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -104,6 +61,34 @@ export default function ResumeAnalysis() {
     }
   }, []);
 
+  const runAnalysis = async (file: File) => {
+    setError(null);
+    setState("analyzing");
+
+    try {
+      const formData = new FormData();
+      formData.append("resume", file);
+
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "Failed to analyze resume" }));
+        throw new Error(errorData.error || `Server error: ${response.status}`);
+      }
+
+      const data: AnalysisResult = await response.json();
+      setResult(data);
+      setState("done");
+    } catch (err: any) {
+      console.error("Resume analysis failed:", err);
+      setError(err?.message ?? "Something went wrong while analyzing your resume.");
+      setState("error");
+    }
+  };
+
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
@@ -113,7 +98,7 @@ export default function ResumeAnalysis() {
       if (e.dataTransfer.files && e.dataTransfer.files[0]) {
         const file = e.dataTransfer.files[0];
         setFileName(file.name);
-        runAnalysis();
+        runAnalysis(file);
       }
     },
     []
@@ -123,22 +108,15 @@ export default function ResumeAnalysis() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setFileName(file.name);
-      runAnalysis();
+      runAnalysis(file);
     }
-  };
-
-  const runAnalysis = () => {
-    setState("analyzing");
-    setTimeout(() => {
-      setResult(dummyAnalysis);
-      setState("done");
-    }, 2200);
   };
 
   const reset = () => {
     setState("idle");
     setFileName(null);
     setResult(null);
+    setError(null);
   };
 
   const getLevelColor = (level: string) => {
@@ -156,7 +134,7 @@ export default function ResumeAnalysis() {
             Upload your resume and get AI-powered insights to improve your chances.
           </p>
         </div>
-        {state === "done" && (
+        {(state === "done" || state === "error") && (
           <Button variant="secondary" size="sm" onClick={reset}>
             Upload New Resume
           </Button>
@@ -164,7 +142,7 @@ export default function ResumeAnalysis() {
       </div>
 
       <AnimatePresence mode="wait">
-        {state === "idle" && (
+        {(state === "idle" || state === "error") && (
           <motion.div
             key="upload"
             initial={{ opacity: 0, y: 20 }}
@@ -205,6 +183,9 @@ export default function ResumeAnalysis() {
                   Drag and drop your PDF or DOCX file here, or click to browse from
                   your device.
                 </p>
+                {error && (
+                  <p className="mt-3 text-xs text-red-500 max-w-sm">{error}</p>
+                )}
                 <div className="mt-6 flex items-center gap-3">
                   <label htmlFor="file-upload">
                     <Button size="md" leftIcon={<FileText size={16} />}>
@@ -262,7 +243,7 @@ export default function ResumeAnalysis() {
                   }}
                   initial={{ width: "0%" }}
                   animate={{ width: "100%" }}
-                  transition={{ duration: 2, ease: "easeInOut" }}
+                  transition={{ duration: 3, ease: "easeInOut" }}
                 />
               </div>
             </Card>
