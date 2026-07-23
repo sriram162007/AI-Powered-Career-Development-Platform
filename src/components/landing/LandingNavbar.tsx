@@ -56,10 +56,10 @@ export function LandingNavbar() {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
-            <Link to="/dashboard">
-              <Button variant="secondary" size="sm">Login</Button>
+            <Link to="/login">
+              <Button variant="secondary" size="sm" className="bg-white/10 border-white/10 text-white hover:bg-white/20">Login</Button>
             </Link>
-            <Link to="/dashboard">
+            <Link to="/register">
               <Button size="sm">Get Started</Button>
             </Link>
           </div>
@@ -85,10 +85,10 @@ export function LandingNavbar() {
               </a>
             ))}
             <div className="flex gap-3 pt-2">
-              <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
-                <Button variant="secondary" size="sm" className="w-full">Login</Button>
+              <Link to="/login" onClick={() => setMobileOpen(false)}>
+                <Button variant="secondary" size="sm" className="w-full bg-white/10 border-white/10 text-white hover:bg-white/20">Login</Button>
               </Link>
-              <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
+              <Link to="/register" onClick={() => setMobileOpen(false)}>
                 <Button size="sm" className="w-full">Get Started</Button>
               </Link>
             </div>
