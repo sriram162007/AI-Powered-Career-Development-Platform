@@ -7,6 +7,15 @@ import SkillsPage from '@/pages/student/Skills';
 import MockInterviews from '@/pages/student/MockInterviews';
 import AnalyticsPage from '@/pages/student/Analytics';
 import SettingsPage from '@/pages/student/Settings';
+import CareerProfile from '@/pages/student/CareerProfile';
+import SkillsManagement from '@/pages/student/SkillsManagement';
+import CoursesPage from '@/pages/student/CoursesPage';
+import CertificatesPage from '@/pages/student/CertificatesPage';
+import ProjectsPage from '@/pages/student/ProjectsPage';
+import InternshipsPage from '@/pages/student/InternshipsPage';
+import ResumeBuilder from '@/pages/student/ResumeBuilder';
+import CareerReadinessEngine from '@/pages/student/CareerReadinessEngine';
+import ProfileCompleteness from '@/pages/student/ProfileCompleteness';
 import LandingPage from '@/pages/LandingPage';
 import LoginPage from '@/pages/Auth/LoginPage';
 import RegisterPage from '@/pages/Auth/RegisterPage';
@@ -118,6 +127,114 @@ function buildRoutes(): RouteObject[] {
       ),
       children: [
         { index: true, element: <SettingsPage /> },
+      ],
+    },
+    {
+      id: 'profile',
+      path: '/profile',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <CareerProfile /> },
+      ],
+    },
+    {
+      id: 'skills-management',
+      path: '/skills-management',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <SkillsManagement /> },
+      ],
+    },
+    {
+      id: 'courses',
+      path: '/courses',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <CoursesPage /> },
+      ],
+    },
+    {
+      id: 'certificates',
+      path: '/certificates',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <CertificatesPage /> },
+      ],
+    },
+    {
+      id: 'projects',
+      path: '/projects',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <ProjectsPage /> },
+      ],
+    },
+    {
+      id: 'internships',
+      path: '/internships',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <InternshipsPage /> },
+      ],
+    },
+    {
+      id: 'resume-builder',
+      path: '/resume-builder',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <ResumeBuilder /> },
+      ],
+    },
+    {
+      id: 'career-readiness',
+      path: '/career-readiness',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <CareerReadinessEngine /> },
+      ],
+    },
+    {
+      id: 'profile-completeness',
+      path: '/profile-completeness',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <ProfileCompleteness /> },
       ],
     },
   ];

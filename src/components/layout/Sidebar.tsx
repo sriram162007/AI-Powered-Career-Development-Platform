@@ -8,6 +8,13 @@ import {
   Settings,
   Sparkles,
   FileText,
+  User,
+  Code2,
+  Briefcase,
+  Award,
+  PenTool,
+  LineChart,
+  CheckCircle2,
 } from 'lucide-react';
 
 const navItems = [
@@ -17,6 +24,15 @@ const navItems = [
   { to: '/interviews', icon: MessageSquare, label: 'Mock Interviews' },
   { to: '/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/dashboard/resume-analysis', icon: FileText, label: 'Resume Analysis' },
+  { to: '/profile', icon: User, label: 'Career Profile' },
+  { to: '/skills-management', icon: Code2, label: 'Skills Management' },
+  { to: '/courses', icon: BookOpen, label: 'Courses' },
+  { to: '/certificates', icon: Award, label: 'Certificates' },
+  { to: '/projects', icon: Briefcase, label: 'Projects' },
+  { to: '/internships', icon: Briefcase, label: 'Internships' },
+  { to: '/resume-builder', icon: PenTool, label: 'AI Resume Builder' },
+  { to: '/career-readiness', icon: LineChart, label: 'Career Readiness' },
+  { to: '/profile-completeness', icon: CheckCircle2, label: 'Profile Completeness' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 
