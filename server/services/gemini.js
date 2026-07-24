@@ -1,7 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+if (!process.env.GEMINI_API_KEY) {
+  throw new Error('GEMINI_API_KEY is not configured. Please add it to your .env file.');
+}
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
 const SYSTEM_PROMPT = `You are an expert career coach and resume analyst. Analyze the provided resume text and return ONLY valid JSON matching this exact schema. Do not include markdown, code fences, or any explanatory text.
 

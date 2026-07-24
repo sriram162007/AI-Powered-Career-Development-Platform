@@ -2,6 +2,11 @@ import { type RouteObject, createBrowserRouter, Navigate } from 'react-router-do
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import StudentDashboard from '@/pages/student/Dashboard';
 import ResumeAnalysis from '@/pages/student/ResumeAnalysis';
+import CareerPath from '@/pages/student/CareerPath';
+import SkillsPage from '@/pages/student/Skills';
+import MockInterviews from '@/pages/student/MockInterviews';
+import AnalyticsPage from '@/pages/student/Analytics';
+import SettingsPage from '@/pages/student/Settings';
 import LandingPage from '@/pages/LandingPage';
 import LoginPage from '@/pages/Auth/LoginPage';
 import RegisterPage from '@/pages/Auth/RegisterPage';
@@ -53,6 +58,66 @@ function buildRoutes(): RouteObject[] {
       children: [
         { index: true, element: <StudentDashboard /> },
         { path: 'resume-analysis', element: <ResumeAnalysis /> },
+      ],
+    },
+    {
+      id: 'career-path',
+      path: '/career-path',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <CareerPath /> },
+      ],
+    },
+    {
+      id: 'skills',
+      path: '/skills',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <SkillsPage /> },
+      ],
+    },
+    {
+      id: 'interviews',
+      path: '/interviews',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <MockInterviews /> },
+      ],
+    },
+    {
+      id: 'analytics',
+      path: '/analytics',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <AnalyticsPage /> },
+      ],
+    },
+    {
+      id: 'settings',
+      path: '/settings',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <SettingsPage /> },
       ],
     },
   ];

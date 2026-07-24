@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, FileText, CheckCircle2, AlertCircle, Lightbulb, Target, TrendingUp, Award } from "lucide-react";
 import Card from "@/components/ui/Card";
@@ -44,12 +44,26 @@ interface AnalysisResult {
   summary: string;
 }
 
+const ALLOWED_EXTENSIONS = [".pdf", ".docx"];
+const ALLOWED_MIME_TYPES = [
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
+
+function isValidResumeFile(file: File) {
+  const name = file.name.toLowerCase();
+  const hasValidExtension = ALLOWED_EXTENSIONS.some((ext) => name.endsWith(ext));
+  const hasValidMime = ALLOWED_MIME_TYPES.includes(file.type);
+  return hasValidExtension || hasValidMime;
+}
+
 export default function ResumeAnalysis() {
   const [state, setState] = useState<AnalysisState>("idle");
   const [fileName, setFileName] = useState<string | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -62,6 +76,12 @@ export default function ResumeAnalysis() {
   }, []);
 
   const runAnalysis = async (file: File) => {
+    if (!isValidResumeFile(file)) {
+      setError("Only PDF and DOCX files are supported. Please upload a valid resume.");
+      setState("error");
+      return;
+    }
+
     setError(null);
     setState("analyzing");
 
@@ -117,6 +137,9 @@ export default function ResumeAnalysis() {
     setFileName(null);
     setResult(null);
     setError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const getLevelColor = (level: string) => {
@@ -164,16 +187,11 @@ export default function ResumeAnalysis() {
                 className="flex flex-col items-center justify-center py-12 text-center"
               >
                 <div
-                  className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl"
-                  style={{
-                    background: dragActive
-                      ? "linear-gradient(135deg, #ff6b35 0%, #f5b942 100%)"
-                      : "#f1f5f9",
-                  }}
+                  className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100"
                 >
                   <Upload
                     size={28}
-                    className={dragActive ? "text-white" : "text-orange-600"}
+                    className={dragActive ? "text-orange-600" : "text-gray-500"}
                   />
                 </div>
                 <h3 className="text-lg font-semibold text-navy-900">
@@ -193,6 +211,7 @@ export default function ResumeAnalysis() {
                     </Button>
                   </label>
                   <input
+                    ref={fileInputRef}
                     id="file-upload"
                     type="file"
                     accept=".pdf,.docx"
@@ -221,12 +240,9 @@ export default function ResumeAnalysis() {
                 className="mb-6"
               >
                 <div
-                  className="flex h-16 w-16 items-center justify-center rounded-2xl"
-                  style={{
-                    background: "linear-gradient(135deg, #ff6b35 0%, #f5b942 100%)",
-                  }}
+                  className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100"
                 >
-                  <FileText size={28} className="text-white" />
+                  <FileText size={28} className="text-gray-600" />
                 </div>
               </motion.div>
               <h3 className="text-lg font-semibold text-navy-900">
@@ -237,10 +253,7 @@ export default function ResumeAnalysis() {
               </p>
               <div className="mt-6 h-2 w-64 overflow-hidden rounded-full bg-gray-100">
                 <motion.div
-                  className="h-full rounded-full"
-                  style={{
-                    background: "linear-gradient(90deg, #ff6b35 0%, #f5b942 100%)",
-                  }}
+                  className="h-full rounded-full bg-gray-400"
                   initial={{ width: "0%" }}
                   animate={{ width: "100%" }}
                   transition={{ duration: 3, ease: "easeInOut" }}
@@ -271,8 +284,8 @@ export default function ResumeAnalysis() {
               </Card>
               <Card padding="md" className="flex flex-col items-center">
                 <div className="flex flex-col items-center">
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
-                    <Target size={20} className="text-orange-600" />
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+                    <Target size={20} className="text-gray-600" />
                   </div>
                   <div className="text-3xl font-bold text-navy-900">
                     {result.skillsDetected.length}
@@ -391,8 +404,8 @@ export default function ResumeAnalysis() {
 
             <Card padding="md">
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500/20 to-orange-600/20">
-                  <TrendingUp size={18} className="text-orange-600" />
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                  <TrendingUp size={18} className="text-gray-600" />
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-navy-900">
