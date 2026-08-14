@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { cn } from '@/utils/cn';
@@ -34,6 +35,7 @@ const plans = [
 
 export function Pricing() {
   const [yearly, setYearly] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <section id="pricing" className="py-24 relative bg-navy-800/30">
@@ -131,6 +133,13 @@ export function Pricing() {
                   variant={plan.highlighted ? 'primary' : 'secondary'}
                   className="w-full"
                   size="lg"
+                  onClick={() => {
+                    if (plan.name === 'Enterprise') {
+                      window.location.href = 'mailto:sales@careerai.in';
+                    } else {
+                      navigate('/pricing');
+                    }
+                  }}
                 >
                   {plan.cta}
                 </Button>

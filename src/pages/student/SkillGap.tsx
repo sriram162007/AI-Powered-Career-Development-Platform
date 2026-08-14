@@ -21,6 +21,8 @@ import { getCareerById, type CareerRole } from "@/data/careers";
 import { calculateSkillGapFromProfile } from "@/lib/skillGapEngine";
 import type { SkillGapResult, SkillGapItem, ProficiencyLevel } from "@/types/skillGap";
 import type { Skill } from "@/types/profile";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradePrompt } from "@/components/subscription/UpgradePrompt";
 
 const statusIcons = {
   STRONG: <CheckCircle2 size={16} className="text-green-500" />,
@@ -122,6 +124,8 @@ function GapItem({ item, showReason = true }: { item: SkillGapItem; showReason?:
 export default function SkillGap() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { canUse } = useSubscription();
+  const hasSkillGapAccess = canUse("skill_gap");
 
   const [selectedCareer, setSelectedCareer] = useState<CareerRole | null>(null);
   const [skills, setSkills] = useState<Skill[] | null>(null);
@@ -212,6 +216,23 @@ export default function SkillGap() {
         <h2 className="text-xl font-semibold text-navy-900 mb-2">Authentication Required</h2>
         <p className="text-navy-400 mb-4">Please sign in to access your skill gap analysis.</p>
         <Button onClick={() => navigate("/login")}>Sign In</Button>
+      </div>
+    );
+  }
+
+  if (!hasSkillGapAccess) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-navy-900">Skill Gap Analysis</h1>
+          <p className="text-sm text-navy-400 mt-1">
+            Identify and bridge the skills needed for your target career.
+          </p>
+        </div>
+        <UpgradePrompt
+          feature="skill_gap"
+          featureLabel="Advanced Skill Gap"
+        />
       </div>
     );
   }

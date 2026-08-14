@@ -23,6 +23,8 @@ import SkillGap from '@/pages/student/SkillGap';
 import LandingPage from '@/pages/LandingPage';
 import LoginPage from '@/pages/Auth/LoginPage';
 import RegisterPage from '@/pages/Auth/RegisterPage';
+import PricingPage from '@/pages/Pricing';
+import CheckoutPage from '@/pages/Checkout';
 import { useAuth } from '@/contexts/AuthContext';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
@@ -59,6 +61,16 @@ function buildRoutes(): RouteObject[] {
       id: 'register',
       path: '/register',
       element: <RegisterPage />,
+    },
+    {
+      id: 'pricing',
+      path: '/pricing',
+      element: <PricingPage />,
+    },
+    {
+      id: 'checkout',
+      path: '/pricing/checkout',
+      element: <CheckoutPage />,
     },
     {
       id: 'dashboard',

@@ -10,11 +10,18 @@ import { CircularProgress } from "@/components/dashboard/CircularProgress";
 import { useResumeUpload } from "@/hooks/useResumeUpload";
 import { useAuth } from "@/contexts/AuthContext";
 import { mergeResumeSkills } from "@/lib/firestore";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradePrompt } from "@/components/subscription/UpgradePrompt";
 
 type AnalysisState = "idle" | "analyzing" | "done" | "error";
 
 export default function ResumeAnalysis() {
   const { user } = useAuth();
+  const { canUse, checkUsageLimit } = useSubscription();
+
+  const resumeAnalysisAllowed = canUse("resume_analysis");
+  const usageCheck = checkUsageLimit("resume_analyses");
+
   const {
     dragActive,
     error,
@@ -70,8 +77,33 @@ export default function ResumeAnalysis() {
         )}
       </div>
 
+      {!resumeAnalysisAllowed && (
+        <UpgradePrompt
+          feature="resume_analysis"
+          featureLabel="Resume AI Analysis"
+          compact={false}
+        />
+      )}
+
+      {resumeAnalysisAllowed && !usageCheck.allowed && usageCheck.remaining !== null && (
+        <div className="bg-navy-50 border border-navy-200 rounded-lg p-4 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-navy-900">
+              Monthly Analysis Limit Reached
+            </p>
+            <p className="text-xs text-navy-500 mt-1">
+              You have used all your resume analyses for this month. Upgrade to
+              get more.
+            </p>
+          </div>
+          <Button variant="primary" size="sm" onClick={() => window.location.assign("/pricing")}>
+            Upgrade
+          </Button>
+        </div>
+      )}
+
       <AnimatePresence mode="wait">
-        {(state === "idle" || state === "error") && (
+        {resumeAnalysisAllowed && (state === "idle" || state === "error") && (
           <motion.div
             key="upload"
             initial={{ opacity: 0, y: 20 }}

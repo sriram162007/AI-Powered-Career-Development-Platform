@@ -1,9 +1,16 @@
 import { useMemo } from "react";
 import { Bell, Search, Menu } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/hooks/useSubscription";
+import { ALL_PLANS } from "@/config/pricing";
+import { useNavigate } from "react-router-dom";
 
 export function Navbar() {
   const { user } = useAuth();
+  const { plan } = useSubscription();
+  const navigate = useNavigate();
+
+  const planInfo = useMemo(() => ALL_PLANS[plan] || ALL_PLANS["free"], [plan]);
 
   const displayName = useMemo(() => {
     if (user?.displayName) return user.displayName;
@@ -22,6 +29,10 @@ export function Navbar() {
       .toUpperCase()
       .slice(0, 2);
   }, [displayName]);
+
+  const handleProfileClick = () => {
+    navigate("/pricing");
+  };
 
   return (
     <header className="h-16 bg-white/80 backdrop-blur-sm border-b border-navy-200 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-10">
@@ -43,13 +54,16 @@ export function Navbar() {
           <Bell size={20} />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 rounded-full ring-2 ring-white" />
         </button>
-        <button className="flex items-center gap-2 pl-2 pr-1 sm:pr-2 py-1 rounded-lg hover:bg-navy-50 transition-colors">
+        <button
+          className="flex items-center gap-2 pl-2 pr-1 sm:pr-2 py-1 rounded-lg hover:bg-navy-50 transition-colors"
+          onClick={handleProfileClick}
+        >
           <div className="w-8 h-8 bg-navy-100 rounded-full flex items-center justify-center text-navy-700 font-semibold text-xs ring-1 ring-navy-200">
             {initials || "S"}
           </div>
           <div className="hidden md:block text-left">
             <p className="text-sm font-medium text-navy-700 leading-none">{displayName}</p>
-            <p className="text-xs text-navy-400 mt-0.5">Free Plan</p>
+            <p className="text-xs text-navy-400 mt-0.5">{planInfo.name} Plan</p>
           </div>
         </button>
       </div>

@@ -6,6 +6,8 @@ import { useResumeImprove } from "@/hooks/useResumeImprove";
 import { useToast } from "@/contexts/ToastContext";
 import type { ResumeData, SkillLevel } from "@/types/profile";
 import { emptySkill, emptyProject, emptyInternship, emptyCertificate, emptyAchievement } from "@/types/profile";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useNavigate } from "react-router-dom";
 
 interface ResumeEditPanelProps {
   resume: ResumeData;
@@ -17,12 +19,27 @@ interface ResumeEditPanelProps {
 export function ResumeEditPanel({ resume, onChange, onSave, saving }: ResumeEditPanelProps) {
   const { improveContent, improving, improveError } = useResumeImprove();
   const { addToast } = useToast();
+  const { canUse, checkUsageLimit } = useSubscription();
+  const navigate = useNavigate();
+
+  const canUseAiImprovement = canUse("ai_resume_improvement");
+  const usageCheck = checkUsageLimit("ai_improvements");
 
   const updateField = (field: keyof ResumeData, value: any) => {
     onChange({ ...resume, [field]: value });
   };
 
   const handleImprove = async (text: string, type: "summary" | "project" | "experience" | "achievement") => {
+    if (!canUseAiImprovement) {
+      navigate("/pricing");
+      return;
+    }
+
+    if (!usageCheck.allowed && usageCheck.remaining !== null) {
+      addToast("You've reached your AI improvement limit. Upgrade for more.", "warning");
+      return;
+    }
+
     if (!text.trim()) {
       addToast("Nothing to improve - enter some text first", "info");
       return;

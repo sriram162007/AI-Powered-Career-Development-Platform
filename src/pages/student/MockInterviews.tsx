@@ -18,6 +18,8 @@ import {
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradePrompt } from "@/components/subscription/UpgradePrompt";
 import {
   LineChart,
   Line,
@@ -176,6 +178,22 @@ const item = {
 
 export default function MockInterviews() {
   const [showNewInterview, setShowNewInterview] = useState(false);
+  const { canUse } = useSubscription();
+  const hasMockInterviewAccess = canUse("mock_interviews");
+
+  if (!hasMockInterviewAccess) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-navy-900">Mock Interviews</h1>
+            <p className="text-sm text-navy-400 mt-1">Practice with AI-powered interview simulations</p>
+          </div>
+        </div>
+        <UpgradePrompt feature="mock_interviews" featureLabel="Mock Interviews" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

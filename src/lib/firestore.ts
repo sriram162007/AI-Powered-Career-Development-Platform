@@ -27,6 +27,7 @@ import type {
   Internship,
   ResumeData,
   CareerAnalytics,
+  Subscription,
 } from "@/types/profile";
 
 function getDb() {
@@ -141,6 +142,17 @@ function createPlaceholderProfile(uid: string, email?: string): UserProfile {
       selectedCareerId: null,
       interests: [],
       careerDiscoveryCompleted: false,
+    },
+    subscription: {
+      plan: "free",
+      planCategory: "individual",
+      status: "active",
+    },
+    usage: {
+      resumeAnalysesThisMonth: 0,
+      aiImprovementsThisMonth: 0,
+      mockInterviewsThisMonth: 0,
+      lastReset: new Date().toISOString().split("T")[0],
     },
   };
 }
@@ -264,6 +276,19 @@ export async function saveAnalytics(uid: string, analytics: Partial<CareerAnalyt
     await setDoc(analyticsRef, { ...analytics, updatedAt: serverTimestamp() }, { merge: true });
   } catch (error) {
     console.warn("Failed to save analytics:", error);
+  }
+}
+
+export async function saveSubscription(uid: string, subscription: Partial<Subscription>): Promise<void> {
+  try {
+    const db = getDb();
+    const profileRef = doc(db, COLLECTIONS.profiles, uid);
+    await updateDoc(profileRef, {
+      subscription: { ...subscription },
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.warn("Failed to save subscription:", error);
   }
 }
 

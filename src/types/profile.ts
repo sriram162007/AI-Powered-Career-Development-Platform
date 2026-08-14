@@ -185,9 +185,50 @@ export interface UserProfile {
   resume: ResumeData;
   analytics: CareerAnalytics;
   careerPreferences: CareerPreference;
+  subscription: Subscription;
+  usage: Usage;
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface ResumeTemplateOptions {
+  modern: Record<string, never>;
+  classic: Record<string, never>;
+  minimal: Record<string, never>;
+  creative: Record<string, never>;
+}
+
+export type PlanType = "free" | "starter" | "pro" | "institution_starter" | "institution_pro" | "enterprise";
+export type PlanCategory = "individual" | "institution";
+
+export interface Subscription {
+  plan: PlanType;
+  planCategory: PlanCategory;
+  status: "active" | "canceled" | "past_due" | "incomplete";
+  currentPeriodStart?: string;
+  currentPeriodEnd?: string;
+  cancelAtPeriodEnd?: boolean;
+}
+
+export interface Usage {
+  resumeAnalysesThisMonth: number;
+  aiImprovementsThisMonth: number;
+  mockInterviewsThisMonth: number;
+  lastReset: string;
+}
+
+export const emptySubscription: Subscription = {
+  plan: "free",
+  planCategory: "individual",
+  status: "active",
+};
+
+export const emptyUsage: Usage = {
+  resumeAnalysesThisMonth: 0,
+  aiImprovementsThisMonth: 0,
+  mockInterviewsThisMonth: 0,
+  lastReset: new Date().toISOString().split("T")[0],
+};
 
 export const emptyPersonalInfo: PersonalInfo = {
   fullName: "",
@@ -355,4 +396,6 @@ export const emptyUserProfile: Omit<UserProfile, "id"> = {
     interests: [],
     careerDiscoveryCompleted: false,
   },
+  subscription: { ...emptySubscription },
+  usage: { ...emptyUsage },
 };
