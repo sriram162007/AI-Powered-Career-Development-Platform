@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 import { BookOpen, FileText, MessageSquare, TrendingUp, Award } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
@@ -36,30 +37,11 @@ interface ActivityItem {
   icon?: React.ReactNode;
 }
 
-const fallbackLearningData = [
-  { month: "Jan", hours: 12, skills: 3 },
-  { month: "Feb", hours: 18, skills: 4 },
-  { month: "Mar", hours: 15, skills: 5 },
-  { month: "Apr", hours: 25, skills: 6 },
-  { month: "May", hours: 22, skills: 7 },
-  { month: "Jun", hours: 30, skills: 8 },
-];
-
 const notificationColors = ["#ff6b35", "#f5b942", "#3b82f6", "#9ca3af", "#22c55e", "#8b5cf6", "#ec4899"];
-
-const fallbackNotifications = [
-  {
-    id: "1",
-    title: "New Job Match: Frontend Developer",
-    message: "A new role matching your profile has been posted. Check your career recommendations.",
-    time: "No recent notifications",
-    read: true,
-    type: "info" as const,
-  },
-];
 
 export default function StudentDashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -177,32 +159,13 @@ export default function StudentDashboard() {
             </div>
             <Badge variant="outline" size="sm">
               <TrendingUp size={12} className="mr-1" />
-              +25%
+              No data yet
             </Badge>
           </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={fallbackLearningData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: "8px",
-                    border: "1px solid #e2e8f0",
-                    boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
-                  }}
-                  cursor={{ fill: "#f8fafc" }}
-                />
-                <Bar dataKey="hours" fill="url(#barGradient)" radius={[6, 6, 0, 0]} barSize={32} />
-                <defs>
-                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#ff6b35" />
-                    <stop offset="100%" stopColor="#f5b942" />
-                  </linearGradient>
-                </defs>
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-64 flex flex-col items-center justify-center text-center">
+            <BookOpen size={48} className="text-navy-200 mb-3" />
+            <p className="text-sm text-navy-400">No learning progress tracked</p>
+            <p className="text-xs text-navy-300 mt-1">Complete courses to see your learning progress</p>
           </div>
         </Card>
 
@@ -281,7 +244,7 @@ export default function StudentDashboard() {
 
         <div className="space-y-4 sm:space-y-6">
           <NotificationPanel
-            notifications={fallbackNotifications}
+            notifications={[]}
             onDismiss={() => {}}
             onViewAll={() => {}}
           />
@@ -294,28 +257,28 @@ export default function StudentDashboard() {
                   title: "Build Resume",
                   description: "Update your resume with AI assistance",
                   icon: <FileText size={20} />,
-                  action: () => console.log("Build Resume"),
+                  action: () => navigate("/resume-builder"),
                   variant: "primary",
                 },
                 {
                   title: "Practice Interview",
                   description: "Start an AI mock interview session",
                   icon: <MessageSquare size={20} />,
-                  action: () => console.log("Practice Interview"),
+                  action: () => navigate("/career-readiness"),
                   variant: "default",
                 },
                 {
                   title: "Take Assessment",
                   description: "Evaluate your current skill level",
                   icon: <Award size={20} />,
-                  action: () => console.log("Take Assessment"),
+                  action: () => navigate("/skill-gap"),
                   variant: "default",
                 },
                 {
                   title: "View Analytics",
                   description: "Deep dive into your career metrics",
                   icon: <TrendingUp size={20} />,
-                  action: () => console.log("View Analytics"),
+                  action: () => navigate("/analytics"),
                   variant: "default",
                 },
               ]}

@@ -1,6 +1,28 @@
-import { Bell, Search, Menu } from 'lucide-react';
+import { useMemo } from "react";
+import { Bell, Search, Menu } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function Navbar() {
+  const { user } = useAuth();
+
+  const displayName = useMemo(() => {
+    if (user?.displayName) return user.displayName;
+    if (user?.email) {
+      const atIndex = user.email.indexOf("@");
+      if (atIndex > 0) return user.email.substring(0, atIndex);
+    }
+    return "Student";
+  }, [user?.displayName, user?.email]);
+
+  const initials = useMemo(() => {
+    return displayName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  }, [displayName]);
+
   return (
     <header className="h-16 bg-white/80 backdrop-blur-sm border-b border-navy-200 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-10">
       <div className="flex items-center gap-4 flex-1">
@@ -23,11 +45,11 @@ export function Navbar() {
         </button>
         <button className="flex items-center gap-2 pl-2 pr-1 sm:pr-2 py-1 rounded-lg hover:bg-navy-50 transition-colors">
           <div className="w-8 h-8 bg-navy-100 rounded-full flex items-center justify-center text-navy-700 font-semibold text-xs ring-1 ring-navy-200">
-            JD
+            {initials || "S"}
           </div>
           <div className="hidden md:block text-left">
-            <p className="text-sm font-medium text-navy-700 leading-none">John Doe</p>
-            <p className="text-xs text-navy-400 mt-0.5">Pro Member</p>
+            <p className="text-sm font-medium text-navy-700 leading-none">{displayName}</p>
+            <p className="text-xs text-navy-400 mt-0.5">Free Plan</p>
           </div>
         </button>
       </div>

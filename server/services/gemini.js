@@ -51,3 +51,33 @@ export async function analyzeResume(resumeText) {
 
   return JSON.parse(jsonMatch[0]);
 }
+
+const IMPROVE_SYSTEM_PROMPT = `You are a professional resume editor. The student has supplied real text from their resume. Improve the wording, clarity, and impact of the text ONLY. You may rewrite, restructure, or enhance phrasing. You may add industry-standard action verbs and formatting. 
+
+CRITICAL RULES — DO NOT VIOLATE:
+- NEVER invent, fabricate, or add any facts not present in the input text
+- NEVER invent company names, job titles, degrees, institutions, dates, projects, technologies, certifications, achievements, or work experience
+- NEVER add numbers, metrics, or accomplishments that are not in the input
+- NEVER change technical terms (language names, framework names, tool names) unless fixing spelling
+- If the input is empty, return empty string
+- Return ONLY the improved text, no markdown, no code fences, no explanations
+
+Input type: {TYPE}
+Input text: {INPUT}
+Improved text:`;
+
+export async function improveContent(text, type) {
+  if (!text || text.trim().length === 0) {
+    return "";
+  }
+
+  const prompt = IMPROVE_SYSTEM_PROMPT
+    .replace("{TYPE}", type || "general")
+    .replace("{INPUT}", text);
+
+  const result = await model.generateContent([prompt]);
+  const response = result.response;
+  const improvedText = response.text().trim();
+
+  return improvedText;
+}

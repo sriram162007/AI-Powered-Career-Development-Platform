@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   User,
@@ -24,6 +24,7 @@ import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import Input from "@/components/ui/Input";
 import Modal from "@/components/ui/Modal";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Tab = "profile" | "notifications" | "appearance" | "privacy";
 
@@ -38,10 +39,29 @@ const preferences = {
 };
 
 export default function SettingsPage() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [prefs, setPrefs] = useState(preferences);
+
+  const displayName = useMemo(() => {
+    if (user?.displayName) return user.displayName;
+    if (user?.email) {
+      const atIndex = user.email.indexOf("@");
+      if (atIndex > 0) return user.email.substring(0, atIndex);
+    }
+    return "Student";
+  }, [user?.displayName, user?.email]);
+
+  const userInitials = useMemo(() => {
+    return displayName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "S";
+  }, [displayName]);
 
   const togglePref = (key: keyof typeof preferences) => {
     setPrefs((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -93,7 +113,7 @@ export default function SettingsPage() {
                 <div className="flex items-center gap-4 mb-6">
                   <div className="relative">
                     <div className="h-16 w-16 rounded-full bg-navy-100 flex items-center justify-center text-navy-700 font-bold text-xl">
-                      JD
+                      {userInitials}
                     </div>
                     <button className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-orange-500 text-white flex items-center justify-center hover:bg-orange-600 transition-colors">
                       <Camera size={12} />

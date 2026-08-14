@@ -2,9 +2,6 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
   BookOpen,
-  GraduationCap,
-  MessageSquare,
-  BarChart3,
   Settings,
   Sparkles,
   FileText,
@@ -14,8 +11,7 @@ import {
   Award,
   PenTool,
   LineChart,
-   CheckCircle2,
-  Upload,
+  CheckCircle2,
   Target,
 } from 'lucide-react';
 
@@ -24,11 +20,7 @@ const navItems = [
   { to: '/career-discovery', icon: BookOpen, label: 'Career Discovery' },
   { to: '/skill-gap', icon: Target, label: 'Skill Gap' },
   { to: '/career-path', icon: BookOpen, label: 'Career Path' },
-  { to: '/skills', icon: GraduationCap, label: 'Skills' },
-  { to: '/interviews', icon: MessageSquare, label: 'Mock Interviews' },
-  { to: '/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/dashboard/resume-analysis', icon: FileText, label: 'Resume Analysis' },
-  { to: '/resume-upload', icon: Upload, label: 'Resume Upload' },
   { to: '/profile', icon: User, label: 'Career Profile' },
   { to: '/skills-management', icon: Code2, label: 'Skills Management' },
   { to: '/courses', icon: BookOpen, label: 'Courses' },

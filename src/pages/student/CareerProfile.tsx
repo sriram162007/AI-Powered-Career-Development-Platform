@@ -374,7 +374,7 @@ export default function CareerProfile() {
               <Card padding="lg">
                 <h3 className="text-base font-semibold text-navy-900 mb-4">Academic Information</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Input label="University" value={academic.university} onChange={(e) => setAcademic({ ...academic, university: e.target.value })} placeholder="IIT Bombay" className="sm:col-span-2" />
+                  <Input label="University" value={academic.university} onChange={(e) => setAcademic({ ...academic, university: e.target.value })} placeholder="University name" className="sm:col-span-2" />
                   <Input label="Degree" value={academic.degree} onChange={(e) => setAcademic({ ...academic, degree: e.target.value })} placeholder="B.Tech" />
                   <Input label="Department" value={academic.department} onChange={(e) => setAcademic({ ...academic, department: e.target.value })} placeholder="Computer Science" />
                   <Input label="Current Year" value={academic.currentYear} onChange={(e) => setAcademic({ ...academic, currentYear: e.target.value })} placeholder="3rd Year" />

@@ -22,12 +22,12 @@ import Badge from "@/components/ui/Badge";
 import { useResume } from "@/contexts/ResumeContext";
 import { useToast } from "@/contexts/ToastContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { mergeResumeSkills } from "@/lib/firestore";
+import { mergeResumeSkills, subscribeToProfile } from "@/lib/firestore";
 import { useResumeUpload } from "@/hooks/useResumeUpload";
 import { CircularProgress } from "@/components/dashboard/CircularProgress";
 import { useNavigate } from "react-router-dom";
 import type { AnalysisResult } from "@/hooks/useResumeUpload";
-import { emptyResumeData, type SkillLevel } from "@/types/profile";
+import { emptyResumeData, type SkillLevel, type UserProfile } from "@/types/profile";
 
 const container = {
   hidden: { opacity: 0 },
@@ -62,10 +62,19 @@ export default function ResumeUpload() {
   const [mounted, setMounted] = useState(false);
   const [skillSaveStatus, setSkillSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [skillSaveError, setSkillSaveError] = useState<string | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!user?.uid) return;
+    const unsub = subscribeToProfile(user.uid, (data) => {
+      if (data) setProfile(data);
+    });
+    return () => unsub?.();
+  }, [user?.uid]);
 
   useEffect(() => {
     if (result && !analyzing) {
@@ -123,6 +132,11 @@ export default function ResumeUpload() {
   };
 
   const activeFile = hookUploadedFile;
+
+  const previewName = profile?.personalInfo?.fullName || user?.displayName || "";
+  const previewEducation = profile?.academicInfo?.university || profile?.academicInfo?.degree
+    ? `${profile.academicInfo.university || ""}${profile.academicInfo.degree ? ` - ${profile.academicInfo.degree}` : ""}`.trim()
+    : "";
 
   if (!mounted) {
     return (
@@ -546,19 +560,20 @@ export default function ResumeUpload() {
                 >
                   <Card padding="lg" className="border-2 border-dashed border-gray-200">
                     <div className="max-w-2xl mx-auto">
-                      <div className="text-center mb-8 pb-6 border-b border-gray-100">
-                        <h1 className="text-3xl font-bold text-navy-900 mb-2">Alex Johnson</h1>
+                       <div className="text-center mb-8 pb-6 border-b border-gray-100">
+                        <h1 className="text-3xl font-bold text-navy-900 mb-2">{previewName || "Your Resume"}</h1>
                         <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-navy-500">
                           <span className="flex items-center gap-1"><Eye size={14} /> Preview</span>
                           <span className="flex items-center gap-1"><FileDown size={14} /> PDF Ready</span>
                         </div>
                       </div>
                       <div className="space-y-4">
+                        {previewEducation && (
                         <div>
                           <h2 className="text-lg font-semibold text-navy-900 mb-2">Education</h2>
-                          <p className="text-sm text-navy-600">B.Tech in Computer Science and Engineering from IIT Bombay</p>
-                          <p className="text-xs text-navy-400">CGPA: 8.5 | Graduation: 2026</p>
+                          <p className="text-sm text-navy-600">{previewEducation}</p>
                         </div>
+                        )}
                         <div>
                           <h2 className="text-lg font-semibold text-navy-900 mb-2">Skills</h2>
                           <div className="flex flex-wrap gap-2">
