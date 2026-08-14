@@ -28,6 +28,7 @@ import {
   getResume,
 } from "@/lib/firestore";
 import { useAuth } from "@/contexts/AuthContext";
+import { useResume } from "@/contexts/ResumeContext";
 import type { ResumeData, ResumeTemplate } from "@/types/profile";
 
 const templates: { key: ResumeTemplate; label: string; description: string }[] = [
@@ -39,6 +40,7 @@ const templates: { key: ResumeTemplate; label: string; description: string }[] =
 
 export default function AIResumeBuilder() {
   const { user } = useAuth();
+  const { resumeData: contextResumeData, setResumeData: setContextResumeData } = useResume();
   const [resume, setResume] = useState<ResumeData | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplate>("modern");
   const [previewMode, setPreviewMode] = useState(false);
@@ -67,10 +69,23 @@ export default function AIResumeBuilder() {
         if (!mountedRef.current) return;
 
         if (savedResume) {
-          setResume(savedResume);
+          const resumeData: ResumeData = {
+            ...savedResume,
+            contact: savedResume.contact || profile.personalInfo,
+            education: savedResume.education || profile.academicInfo,
+            skills: savedResume.skills || profile.skills,
+            projects: savedResume.projects || profile.projects,
+            experience: savedResume.experience || profile.internships,
+            internships: savedResume.internships || profile.internships,
+            certificates: savedResume.certificates || profile.certificates,
+            achievements: savedResume.achievements || profile.achievements,
+            languages: savedResume.languages || profile.languages,
+          };
+          setResume(resumeData);
           setSelectedTemplate(savedResume.template || "modern");
+          setContextResumeData(resumeData);
         } else {
-          setResume({
+          const resumeData: ResumeData = {
             careerObjective: "",
             contact: profile.personalInfo,
             education: profile.academicInfo,
@@ -83,7 +98,10 @@ export default function AIResumeBuilder() {
             languages: profile.languages,
             template: "modern",
             lastUpdated: new Date().toISOString().split("T")[0],
-          });
+          };
+          setResume(resumeData);
+          setSelectedTemplate("modern");
+          setContextResumeData(resumeData);
         }
       } catch (error) {
         console.error("Failed to initialize resume:", error);
@@ -118,7 +136,18 @@ export default function AIResumeBuilder() {
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [user?.uid]);
+    }, [user?.uid]);
+
+  useEffect(() => {
+    if (!contextResumeData || !resume) return;
+    const hasChanged =
+      contextResumeData.contact?.fullName !== resume.contact?.fullName ||
+      contextResumeData.skills?.length !== resume.skills?.length ||
+      contextResumeData.projects?.length !== resume.projects?.length;
+    if (hasChanged) {
+      setResume(contextResumeData);
+    }
+  }, [contextResumeData, resume]);
 
   const regenerateResume = async () => {
     if (!user?.uid || !resume) return;
@@ -141,6 +170,7 @@ export default function AIResumeBuilder() {
         lastUpdated: new Date().toISOString().split("T")[0],
       };
       setResume(newResume);
+      setContextResumeData(newResume);
       await saveResume(user.uid, newResume);
     } catch (error) {
       console.error("Failed to regenerate resume:", error);

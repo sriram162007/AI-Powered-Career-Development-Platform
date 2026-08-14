@@ -2,6 +2,7 @@ import { type RouteObject, createBrowserRouter, Navigate } from 'react-router-do
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import StudentDashboard from '@/pages/student/Dashboard';
 import ResumeAnalysis from '@/pages/student/ResumeAnalysis';
+import ResumeUpload from '@/pages/student/ResumeUpload';
 import CareerPath from '@/pages/student/CareerPath';
 import SkillsPage from '@/pages/student/Skills';
 import MockInterviews from '@/pages/student/MockInterviews';
@@ -67,6 +68,18 @@ function buildRoutes(): RouteObject[] {
       children: [
         { index: true, element: <StudentDashboard /> },
         { path: 'resume-analysis', element: <ResumeAnalysis /> },
+      ],
+    },
+    {
+      id: 'resume-upload',
+      path: '/resume-upload',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <ResumeUpload /> },
       ],
     },
     {

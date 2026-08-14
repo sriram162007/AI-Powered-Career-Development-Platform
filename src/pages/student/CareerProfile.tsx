@@ -26,6 +26,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { getOrCreateProfile, subscribeToProfile } from "@/lib/firestore";
 import { useAuth } from "@/contexts/AuthContext";
+import { useResume } from "@/contexts/ResumeContext";
 import type {
   PersonalInfo,
   AcademicInfo,
@@ -119,6 +120,7 @@ const item = {
 
 export default function CareerProfile() {
   const { user } = useAuth();
+  const { setResumeData } = useResume();
   const [activeTab, setActiveTab] = useState<Tab>("personal");
   const [saving, setSaving] = useState(false);
 
@@ -146,6 +148,20 @@ export default function CareerProfile() {
         setHackathons(data.hackathons || []);
         setAwards(data.awards || []);
         setPublications(data.publications || []);
+        setResumeData({
+          careerObjective: "",
+          contact: data.personalInfo || { ...emptyPersonal },
+          education: data.academicInfo || { ...emptyAcademic },
+          skills: data.skills || [],
+          projects: data.projects || [],
+          experience: data.internships || [],
+          internships: data.internships || [],
+          certificates: data.certificates || [],
+          achievements: data.achievements || [],
+          languages: data.languages || [],
+          template: "modern",
+          lastUpdated: new Date().toISOString().split("T")[0],
+        });
       } else {
         getOrCreateProfile(user.uid, user?.email ?? undefined).then((p) => {
           setPersonal(p.personalInfo || { ...emptyPersonal });
@@ -164,7 +180,7 @@ export default function CareerProfile() {
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [user?.uid, user?.email]);
+  }, [user?.uid, user?.email, setResumeData]);
 
   const handleSave = async () => {
     if (!user?.uid) return;

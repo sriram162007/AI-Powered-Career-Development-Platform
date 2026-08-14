@@ -15,6 +15,7 @@ import {
   PenTool,
   LineChart,
   CheckCircle2,
+  Upload,
 } from 'lucide-react';
 
 const navItems = [
@@ -24,6 +25,7 @@ const navItems = [
   { to: '/interviews', icon: MessageSquare, label: 'Mock Interviews' },
   { to: '/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/dashboard/resume-analysis', icon: FileText, label: 'Resume Analysis' },
+  { to: '/resume-upload', icon: Upload, label: 'Resume Upload' },
   { to: '/profile', icon: User, label: 'Career Profile' },
   { to: '/skills-management', icon: Code2, label: 'Skills Management' },
   { to: '/courses', icon: BookOpen, label: 'Courses' },
