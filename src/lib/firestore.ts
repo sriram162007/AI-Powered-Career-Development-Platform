@@ -16,9 +16,11 @@ import {
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getFirebaseDb, getFirebaseStorage } from "./firebaseClient";
+import { normalizeSkillName, isSkillNameMatch } from "./skillNormalization";
 import type {
   UserProfile,
   Skill,
+  SkillLevel,
   Course,
   Certificate,
   Project,
@@ -122,7 +124,7 @@ function createPlaceholderProfile(uid: string, email?: string): UserProfile {
       template: "modern",
       lastUpdated: new Date().toISOString().split("T")[0],
     },
-    analytics: {
+     analytics: {
       resumeScore: 0,
       atsScore: 0,
       skillScore: 0,
@@ -134,6 +136,11 @@ function createPlaceholderProfile(uid: string, email?: string): UserProfile {
       placementReadiness: 0,
       jobReadiness: 0,
       profileCompleteness: 0,
+    },
+    careerPreferences: {
+      selectedCareerId: null,
+      interests: [],
+      careerDiscoveryCompleted: false,
     },
   };
 }
@@ -181,6 +188,33 @@ export async function saveProfile(uid: string, profile: Partial<UserProfile>): P
   }
 }
 
+export async function saveCareerPreferences(
+  uid: string,
+  preferences: {
+    selectedCareerId?: string | null;
+    interests?: string[];
+    careerDiscoveryCompleted?: boolean;
+  }
+): Promise<void> {
+  const db = getDb();
+  const profileRef = doc(db, COLLECTIONS.profiles, uid);
+  const updates: Record<string, unknown> = {
+    updatedAt: serverTimestamp(),
+  };
+
+  if (preferences.selectedCareerId !== undefined) {
+    updates["careerPreferences.selectedCareerId"] = preferences.selectedCareerId;
+  }
+  if (preferences.interests !== undefined) {
+    updates["careerPreferences.interests"] = preferences.interests;
+  }
+  if (preferences.careerDiscoveryCompleted !== undefined) {
+    updates["careerPreferences.careerDiscoveryCompleted"] = preferences.careerDiscoveryCompleted;
+  }
+
+  await updateDoc(profileRef, updates);
+}
+
 export function subscribeToProfile(uid: string, callback: (profile: UserProfile | null) => void): Unsubscribe | null {
   try {
     const db = getDb();
@@ -202,6 +236,7 @@ export function subscribeToProfile(uid: string, callback: (profile: UserProfile 
     );
   } catch (error) {
     console.warn("Firestore unavailable for profile subscription:", error);
+    callback(null);
     return null;
   }
 }
@@ -244,6 +279,70 @@ export async function addSkill(uid: string, skill: Omit<Skill, "id">): Promise<S
   }
 }
 
+export interface ResumeSkillInput {
+  name: string;
+  level: string;
+  category: string;
+}
+
+export interface MergeResumeSkillsResult {
+  added: Skill[];
+  skipped: Skill[];
+  message: string;
+}
+
+export async function mergeResumeSkills(
+  uid: string,
+  detectedSkills: ResumeSkillInput[]
+): Promise<MergeResumeSkillsResult> {
+  try {
+    const db = getDb();
+    const q = query(collection(db, COLLECTIONS.skills), where("uid", "==", uid));
+    const snapshot = await getDocs(q);
+    const existingSkills = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Skill);
+
+    const added: Skill[] = [];
+    const skipped: Skill[] = [];
+
+    for (const detected of detectedSkills) {
+      const normalizedName = normalizeSkillName(detected.name);
+      const exists = existingSkills.some((s) => {
+        if (isSkillNameMatch(s.name, detected.name)) return true;
+        return normalizeSkillName(s.name).toLowerCase() === normalizedName.toLowerCase();
+      });
+
+      if (exists) {
+        const existing = existingSkills.find((s) => isSkillNameMatch(s.name, detected.name));
+        if (existing) skipped.push(existing);
+        continue;
+      }
+
+      const newSkill: Omit<Skill, "id"> = {
+        name: normalizedName || detected.name,
+        category: detected.category || "Technical",
+        level: "Beginner" as SkillLevel,
+        lastUpdated: new Date().toISOString().split("T")[0],
+        source: "Self Learning",
+      };
+
+      const skillData = { ...newSkill, id: generateId(), uid, createdAt: serverTimestamp() };
+      const docRef = await addDoc(collection(db, COLLECTIONS.skills), skillData);
+      const addedSkill = { ...skillData, id: docRef.id } as Skill;
+      added.push(addedSkill);
+      existingSkills.push(addedSkill);
+    }
+
+    return {
+      added,
+      skipped,
+      message: `Added ${added.length} new skill(s) from your resume. ${skipped.length} existing skill(s) were preserved.`,
+    };
+  } catch (error) {
+    console.warn("Failed to merge resume skills:", error);
+    throw error;
+  }
+}
+
 export async function updateSkill(_uid: string, skillId: string, updates: Partial<Skill>): Promise<void> {
   try {
     const db = getDb();
@@ -264,7 +363,7 @@ export async function deleteSkill(_uid: string, skillId: string): Promise<void> 
   }
 }
 
-export function subscribeToSkills(uid: string, callback: (skills: Skill[]) => void): Unsubscribe | null {
+export function subscribeToSkills(uid: string, callback: (skills: Skill[] | null) => void): Unsubscribe | null {
   try {
     const db = getDb();
     const q = query(collection(db, COLLECTIONS.skills), where("uid", "==", uid), orderBy("lastUpdated", "desc"));
@@ -277,11 +376,12 @@ export function subscribeToSkills(uid: string, callback: (skills: Skill[]) => vo
       },
       (error) => {
         console.warn("Skills subscription error:", error);
-        callback([]);
+        callback(null);
       }
     );
   } catch (error) {
     console.warn("Firestore unavailable for skills subscription:", error);
+    callback(null);
     return null;
   }
 }

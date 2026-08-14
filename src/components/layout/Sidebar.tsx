@@ -14,12 +14,15 @@ import {
   Award,
   PenTool,
   LineChart,
-  CheckCircle2,
+   CheckCircle2,
   Upload,
+  Target,
 } from 'lucide-react';
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Overview' },
+  { to: '/career-discovery', icon: BookOpen, label: 'Career Discovery' },
+  { to: '/skill-gap', icon: Target, label: 'Skill Gap' },
   { to: '/career-path', icon: BookOpen, label: 'Career Path' },
   { to: '/skills', icon: GraduationCap, label: 'Skills' },
   { to: '/interviews', icon: MessageSquare, label: 'Mock Interviews' },

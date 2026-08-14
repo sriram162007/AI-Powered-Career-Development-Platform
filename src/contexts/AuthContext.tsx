@@ -27,7 +27,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [auth, setAuth] = useState<Auth | null>(null);
 
   useEffect(() => {
-    if (!app) return;
+    if (!app) {
+      setLoading(false);
+      return;
+    }
 
     const authInstance = getAuth(app);
     setAuth(authInstance);

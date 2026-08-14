@@ -24,10 +24,10 @@ import {
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { getOrCreateProfile, subscribeToProfile } from "@/lib/firestore";
+import { getOrCreateProfile, saveProfile, subscribeToProfile } from "@/lib/firestore";
 import { useAuth } from "@/contexts/AuthContext";
 import { useResume } from "@/contexts/ResumeContext";
-import type {
+import { useToast } from "@/contexts/ToastContext";import type {
   PersonalInfo,
   AcademicInfo,
   CareerGoal,
@@ -121,6 +121,7 @@ const item = {
 export default function CareerProfile() {
   const { user } = useAuth();
   const { setResumeData } = useResume();
+  const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState<Tab>("personal");
   const [saving, setSaving] = useState(false);
 
@@ -199,13 +200,14 @@ export default function CareerProfile() {
       updatedAt: new Date().toISOString(),
     };
 
-    await fetch(`/api/profile/${user.uid ?? ""}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updates),
-    }).catch(() => {});
-
-    setSaving(false);
+    try {
+      await saveProfile(user.uid, updates);
+      addToast("Profile saved successfully!", "success");
+    } catch {
+      addToast("Failed to save profile. Please try again.", "error");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [

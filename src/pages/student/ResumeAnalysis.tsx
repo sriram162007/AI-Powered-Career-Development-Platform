@@ -1,146 +1,52 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileText, CheckCircle2, AlertCircle, Lightbulb, Target, TrendingUp, Award } from "lucide-react";
+import { Upload, FileText, CheckCircle2, AlertCircle, Lightbulb, Target, TrendingUp, Award, RefreshCw } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import { CircularProgress } from "@/components/dashboard/CircularProgress";
+import { useResumeUpload } from "@/hooks/useResumeUpload";
+import { useAuth } from "@/contexts/AuthContext";
+import { mergeResumeSkills } from "@/lib/firestore";
 
 type AnalysisState = "idle" | "analyzing" | "done" | "error";
 
-interface SkillItem {
-  name: string;
-  level: "Expert" | "Intermediate" | "Beginner";
-  category: string;
-}
-
-interface Strength {
-  title: string;
-  detail: string;
-}
-
-interface Weakness {
-  title: string;
-  detail: string;
-}
-
-interface Improvement {
-  title: string;
-  detail: string;
-}
-
-interface AnalysisResult {
-  resumeScore: number;
-  atsScore: number;
-  industryMatch: number;
-  topIndustry: string;
-  skillsDetected: SkillItem[];
-  missingSkills: string[];
-  strengths: Strength[];
-  weaknesses: Weakness[];
-  improvements: Improvement[];
-  summary: string;
-}
-
-const ALLOWED_EXTENSIONS = [".pdf", ".docx"];
-const ALLOWED_MIME_TYPES = [
-  "application/pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-];
-
-function isValidResumeFile(file: File) {
-  const name = file.name.toLowerCase();
-  const hasValidExtension = ALLOWED_EXTENSIONS.some((ext) => name.endsWith(ext));
-  const hasValidMime = ALLOWED_MIME_TYPES.includes(file.type);
-  return hasValidExtension || hasValidMime;
-}
-
 export default function ResumeAnalysis() {
-  const [state, setState] = useState<AnalysisState>("idle");
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [dragActive, setDragActive] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user } = useAuth();
+  const {
+    dragActive,
+    error,
+    analyzing,
+    result,
+    uploadedFile,
+    fileInputRef,
+    handleDrag,
+    handleDrop,
+    handleFileChange,
+    reset,
+  } = useResumeUpload();
 
-  const handleDrag = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
+  const state: AnalysisState = analyzing ? "analyzing" : error ? "error" : result ? "done" : "idle";
+
+  const fileName = uploadedFile?.name ?? null;
+  const [skillSaveStatus, setSkillSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [skillSaveError, setSkillSaveError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (result && !analyzing && user?.uid && result.skillsDetected.length > 0 && skillSaveStatus === "idle") {
+      setSkillSaveStatus("saving");
+      mergeResumeSkills(user.uid, result.skillsDetected)
+        .then(() => {
+          setSkillSaveStatus("saved");
+        })
+        .catch((err) => {
+          setSkillSaveStatus("error");
+          setSkillSaveError(err instanceof Error ? err.message : "Failed to save skills.");
+        });
     }
-  }, []);
-
-  const runAnalysis = async (file: File) => {
-    if (!isValidResumeFile(file)) {
-      setError("Only PDF and DOCX files are supported. Please upload a valid resume.");
-      setState("error");
-      return;
-    }
-
-    setError(null);
-    setState("analyzing");
-
-    try {
-      const formData = new FormData();
-      formData.append("resume", file);
-
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: "Failed to analyze resume" }));
-        throw new Error(errorData.error || `Server error: ${response.status}`);
-      }
-
-      const data: AnalysisResult = await response.json();
-      setResult(data);
-      setState("done");
-    } catch (err: any) {
-      console.error("Resume analysis failed:", err);
-      setError(err?.message ?? "Something went wrong while analyzing your resume.");
-      setState("error");
-    }
-  };
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setDragActive(false);
-
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        const file = e.dataTransfer.files[0];
-        setFileName(file.name);
-        runAnalysis(file);
-      }
-    },
-    []
-  );
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setFileName(file.name);
-      runAnalysis(file);
-    }
-  };
-
-  const reset = () => {
-    setState("idle");
-    setFileName(null);
-    setResult(null);
-    setError(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
+  }, [result, analyzing, user?.uid, skillSaveStatus]);
 
   const getLevelColor = (level: string) => {
     if (level === "Expert") return "success";
@@ -184,7 +90,8 @@ export default function ResumeAnalysis() {
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
-                className="flex flex-col items-center justify-center py-12 text-center"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex flex-col items-center justify-center py-12 text-center cursor-pointer"
               >
                 <div
                   className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100"
@@ -205,14 +112,15 @@ export default function ResumeAnalysis() {
                   <p className="mt-3 text-xs text-red-500 max-w-sm">{error}</p>
                 )}
                 <div className="mt-6 flex items-center gap-3">
-                  <label htmlFor="file-upload">
-                    <Button size="md" leftIcon={<FileText size={16} />}>
-                      Browse Files
-                    </Button>
-                  </label>
+                  <Button
+                    size="md"
+                    leftIcon={<FileText size={16} />}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Browse Files
+                  </Button>
                   <input
                     ref={fileInputRef}
-                    id="file-upload"
                     type="file"
                     accept=".pdf,.docx"
                     className="hidden"
@@ -260,6 +168,37 @@ export default function ResumeAnalysis() {
                 />
               </div>
             </Card>
+          </motion.div>
+        )}
+
+        {(skillSaveStatus === "saving" || skillSaveStatus === "saved" || skillSaveStatus === "error") && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`p-4 rounded-xl border ${
+              skillSaveStatus === "saved"
+                ? "bg-green-50 border-green-200 text-green-800"
+                : skillSaveStatus === "error"
+                ? "bg-red-50 border-red-200 text-red-800"
+                : "bg-orange-50 border-orange-200 text-orange-800"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              {skillSaveStatus === "saving" ? (
+                <RefreshCw size={16} className="animate-spin" />
+              ) : skillSaveStatus === "saved" ? (
+                <CheckCircle2 size={16} />
+              ) : (
+                <AlertCircle size={16} />
+              )}
+              <span className="text-sm font-medium">
+                {skillSaveStatus === "saving"
+                  ? "Saving detected skills to your profile..."
+                  : skillSaveStatus === "saved"
+                  ? "Resume analyzed successfully. Your skills have been updated."
+                  : skillSaveError || "Failed to save skills."}
+              </span>
+            </div>
           </motion.div>
         )}
 

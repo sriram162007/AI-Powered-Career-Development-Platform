@@ -21,10 +21,13 @@ import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import { useResume } from "@/contexts/ResumeContext";
 import { useToast } from "@/contexts/ToastContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { mergeResumeSkills } from "@/lib/firestore";
 import { useResumeUpload } from "@/hooks/useResumeUpload";
 import { CircularProgress } from "@/components/dashboard/CircularProgress";
 import { useNavigate } from "react-router-dom";
 import type { AnalysisResult } from "@/hooks/useResumeUpload";
+import { emptyResumeData, type SkillLevel } from "@/types/profile";
 
 const container = {
   hidden: { opacity: 0 },
@@ -39,7 +42,8 @@ const item = {
 export default function ResumeUpload() {
   const navigate = useNavigate();
   const { addToast } = useToast();
-  const { uploadedFile, setResumeData, resetResume } = useResume();
+  const { user } = useAuth();
+  const { setResumeData, setAnalysisResult, resetResume } = useResume();
   const {
     dragActive,
     error,
@@ -56,6 +60,8 @@ export default function ResumeUpload() {
 
   const [showPreview, setShowPreview] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [skillSaveStatus, setSkillSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [skillSaveError, setSkillSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -63,58 +69,43 @@ export default function ResumeUpload() {
 
   useEffect(() => {
     if (result && !analyzing) {
-      addToast("Resume analysis completed successfully!", "success");
+      setAnalysisResult(result);
       setResumeData({
-        careerObjective: "Passionate software engineer with expertise in full-stack development and a strong foundation in modern web technologies.",
-        education: {
-          university: "IIT Bombay",
-          degree: "B.Tech",
-          department: "Computer Science and Engineering",
-          currentYear: "3rd Year",
-          cgpa: "8.5",
-          graduationYear: "2026",
-        },
-        skills: [
-          { id: "1", name: "React", category: "Technical", level: "Expert", lastUpdated: "2025-06-01", source: "Self Learning" },
-          { id: "2", name: "TypeScript", category: "Technical", level: "Advanced", lastUpdated: "2025-05-15", source: "Course" },
-          { id: "3", name: "Firebase", category: "Technical", level: "Intermediate", lastUpdated: "2025-04-20", source: "Project" },
-          { id: "4", name: "Tailwind CSS", category: "Technical", level: "Advanced", lastUpdated: "2025-05-01", source: "Self Learning" },
-          { id: "5", name: "Git", category: "Tools", level: "Advanced", lastUpdated: "2025-03-10", source: "Self Learning" },
-        ],
-        projects: [
-          {
-            id: "1",
-            projectName: "E-Commerce Platform",
-            description: "Built a full-stack e-commerce platform with React, Node.js, and MongoDB.",
-            technologies: ["React", "Node.js", "MongoDB"],
-            github: "https://github.com/example/ecommerce",
-            liveDemo: "https://ecommerce-demo.vercel.app",
-            skillsUsed: ["React", "Node.js", "MongoDB"],
-            projectDuration: "3 months",
-          },
-        ],
-        experience: [],
-        internships: [],
-        certificates: [],
-        achievements: [],
-        languages: [
-          { id: "1", name: "English", proficiency: "Fluent" },
-          { id: "2", name: "Hindi", proficiency: "Native" },
-        ],
-        contact: {
-          fullName: "Alex Johnson",
-          email: "alex.johnson@example.com",
-          phone: "+91 98765 43210",
-          linkedin: "https://linkedin.com/in/alexjohnson",
-          github: "https://github.com/alexjohnson",
-          portfolio: "https://alexjohnson.dev",
-          location: "Bangalore, India",
-        },
-        template: "modern",
-        lastUpdated: new Date().toISOString().split("T")[0],
+        ...emptyResumeData,
+        careerObjective: result.summary || "",
+        skills: result.skillsDetected.map((s) => ({
+          id: `${s.name}_${Math.random().toString(36).slice(2, 9)}`,
+          name: s.name,
+          category: s.category,
+          level: s.level as SkillLevel,
+          lastUpdated: new Date().toISOString().split("T")[0],
+          source: "Self Learning",
+        })),
       });
+
+      if (user?.uid && result.skillsDetected.length > 0) {
+        setSkillSaveStatus("saving");
+        setSkillSaveError(null);
+        mergeResumeSkills(user.uid, result.skillsDetected)
+          .then((mergeResult) => {
+            setSkillSaveStatus("saved");
+            addToast(
+              mergeResult.message || "Resume analyzed successfully. Your skills have been updated.",
+              "success"
+            );
+          })
+          .catch((err) => {
+            setSkillSaveStatus("error");
+            setSkillSaveError(err instanceof Error ? err.message : "Failed to save skills. You can retry later.");
+            addToast("Analysis completed but skills could not be saved to your profile.", "info");
+          });
+      } else if (result.skillsDetected.length === 0) {
+        addToast("Resume analysis completed successfully!", "success");
+      } else if (!user?.uid) {
+        addToast("Resume analysis completed successfully!", "success");
+      }
     }
-  }, [result, analyzing, addToast, setResumeData]);
+  }, [result, analyzing, addToast, setResumeData, setAnalysisResult, user?.uid]);
 
   const handleContinue = () => {
     addToast("Navigating to Resume Builder...", "info");
@@ -131,7 +122,7 @@ export default function ResumeUpload() {
     setShowPreview(!showPreview);
   };
 
-  const activeFile = hookUploadedFile || uploadedFile;
+  const activeFile = hookUploadedFile;
 
   if (!mounted) {
     return (
@@ -187,7 +178,8 @@ export default function ResumeUpload() {
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
-                className="flex flex-col items-center justify-center py-16 text-center relative z-10"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex flex-col items-center justify-center py-16 text-center relative z-10 cursor-pointer"
               >
                 <motion.div
                   className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-100 to-orange-50"
@@ -211,14 +203,15 @@ export default function ResumeUpload() {
                   </motion.div>
                 )}
                 <div className="mt-8 flex items-center gap-4">
-                  <label htmlFor="file-upload-resume">
-                    <Button size="md" leftIcon={<FileText size={16} />}>
-                      Browse Files
-                    </Button>
-                  </label>
+                  <Button
+                    size="md"
+                    leftIcon={<FileText size={16} />}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Browse Files
+                  </Button>
                   <input
                     ref={fileInputRef}
-                    id="file-upload-resume"
                     type="file"
                     accept=".pdf,.docx"
                     className="hidden"
@@ -328,6 +321,38 @@ export default function ResumeUpload() {
                     </div>
                   </div>
                 </Card>
+              </motion.div>
+            )}
+
+            {(skillSaveStatus === "saving" || skillSaveStatus === "saved" || skillSaveStatus === "error") && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className={`p-4 rounded-xl border ${
+                  skillSaveStatus === "saved"
+                    ? "bg-green-50 border-green-200 text-green-800"
+                    : skillSaveStatus === "error"
+                    ? "bg-red-50 border-red-200 text-red-800"
+                    : "bg-orange-50 border-orange-200 text-orange-800"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {skillSaveStatus === "saving" ? (
+                    <RefreshCw size={16} className="animate-spin" />
+                  ) : skillSaveStatus === "saved" ? (
+                    <CheckCircle2 size={16} />
+                  ) : (
+                    <AlertCircle size={16} />
+                  )}
+                  <span className="text-sm font-medium">
+                    {skillSaveStatus === "saving"
+                      ? "Saving detected skills to your profile..."
+                      : skillSaveStatus === "saved"
+                      ? "Resume analyzed successfully. Your skills have been updated."
+                      : skillSaveError || "Failed to save skills. Please try again."}
+                  </span>
+                </div>
               </motion.div>
             )}
 

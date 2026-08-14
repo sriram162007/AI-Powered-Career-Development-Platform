@@ -59,7 +59,7 @@ export function useResumeUpload() {
     return null;
   }, []);
 
-  const runFrontendAnalysis = useCallback(async (_file: File): Promise<AnalysisResult> => {
+  const analyzeResumeViaBackend = useCallback(async (file: File): Promise<AnalysisResult> => {
     const steps = [
       "Uploading resume...",
       "Reading document...",
@@ -70,46 +70,32 @@ export function useResumeUpload() {
       "Preparing dashboard...",
     ];
 
-    for (let i = 0; i < steps.length; i++) {
-      setAnalysisStep(steps[i]);
-      await new Promise((resolve) => setTimeout(resolve, 280));
-    }
+    let stepIndex = 0;
+    const stepInterval = setInterval(() => {
+      setAnalysisStep(steps[stepIndex % steps.length]);
+      stepIndex++;
+    }, 400);
 
-    return {
-      resumeScore: 88,
-      atsScore: 84,
-      industryMatch: 85,
-      topIndustry: "Technology",
-      skillsDetected: [
-        { name: "React", level: "Expert" as const, category: "Frontend" },
-        { name: "Firebase", level: "Intermediate" as const, category: "Backend" },
-        { name: "Tailwind CSS", level: "Intermediate" as const, category: "Frontend" },
-        { name: "TypeScript", level: "Intermediate" as const, category: "Language" },
-        { name: "Git", level: "Intermediate" as const, category: "Tools" },
-        { name: "HTML", level: "Expert" as const, category: "Frontend" },
-        { name: "CSS", level: "Expert" as const, category: "Frontend" },
-      ],
-      missingSkills: ["Docker", "REST API", "Testing", "CI/CD", "System Design"],
-      strengths: [
-        { title: "Strong Technical Foundation", detail: "Demonstrates proficiency in modern frontend technologies including React, TypeScript, and Tailwind CSS." },
-        { title: "Clean Formatting", detail: "Resume follows ATS-friendly formatting with clear section headers and consistent styling." },
-        { title: "Keyword Optimization", detail: "Good use of industry-standard keywords throughout the document." },
-      ],
-      weaknesses: [
-        { title: "Limited Project Details", detail: "Projects lack measurable outcomes and impact statements." },
-        { title: "Missing Certifications", detail: "No professional certifications listed to validate skills." },
-        { title: "Brief Experience Section", detail: "Internship and work experience need more detailed descriptions." },
-      ],
-      improvements: [
-        { title: "Add measurable achievements", detail: "Include metrics like 'Improved performance by 40%' or 'Reduced load time by 20%'." },
-        { title: "Expand project descriptions", detail: "Add context, your role, technologies used, and outcomes for each project." },
-        { title: "Include certifications", detail: "Add relevant certifications like AWS, Google Cloud, or Meta Frontend Developer." },
-        { title: "Optimize ATS keywords", detail: "Incorporate job description keywords naturally throughout your resume." },
-        { title: "Add internship experience", detail: "Include any relevant internships or co-op positions with detailed responsibilities." },
-      ],
-      summary:
-        "Your resume demonstrates a solid technical foundation with strong frontend skills. To stand out to top-tier companies, focus on adding quantifiable achievements, expanding project descriptions, and obtaining relevant certifications.",
-    };
+    try {
+      const formData = new FormData();
+      formData.append("resume", file);
+
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "Failed to analyze resume" }));
+        throw new Error(errorData.error || `Server error: ${response.status}`);
+      }
+
+      const data: AnalysisResult = await response.json();
+      return data;
+    } finally {
+      clearInterval(stepInterval);
+      setAnalysisStep("");
+    }
   }, []);
 
   const handleDrop = useCallback(
@@ -135,7 +121,7 @@ export function useResumeUpload() {
         setAnalyzing(true);
         setResult(null);
         try {
-          const analysis = await runFrontendAnalysis(file);
+          const analysis = await analyzeResumeViaBackend(file);
           setResult(analysis);
         } catch {
           setError("Analysis failed. Please try again.");
@@ -145,7 +131,7 @@ export function useResumeUpload() {
         }
       }
     },
-    [validateFile, runFrontendAnalysis]
+    [validateFile, analyzeResumeViaBackend]
   );
 
   const handleFileChange = useCallback(
@@ -167,7 +153,7 @@ export function useResumeUpload() {
         setAnalyzing(true);
         setResult(null);
         try {
-          const analysis = await runFrontendAnalysis(file);
+          const analysis = await analyzeResumeViaBackend(file);
           setResult(analysis);
         } catch {
           setError("Analysis failed. Please try again.");
@@ -177,7 +163,7 @@ export function useResumeUpload() {
         }
       }
     },
-    [validateFile, runFrontendAnalysis]
+    [validateFile, analyzeResumeViaBackend]
   );
 
   const handleDrag = useCallback((e: React.DragEvent) => {

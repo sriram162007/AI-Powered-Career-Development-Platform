@@ -79,7 +79,7 @@ export default function SkillsManagement() {
 
   useEffect(() => {
     if (!user?.uid) return;
-    const unsubscribe = subscribeToSkills(user.uid, (data) => setSkills(data));
+    const unsubscribe = subscribeToSkills(user.uid, (data) => setSkills(data ?? []));
     return () => {
       if (unsubscribe) unsubscribe();
     };

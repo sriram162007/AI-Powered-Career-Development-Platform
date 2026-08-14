@@ -1,10 +1,24 @@
-import pdfParse from 'pdf-parse';
+import path from 'node:path';
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import mammoth from 'mammoth';
+
+const standardFontDataUrl = path.join(process.cwd(), 'node_modules', 'pdfjs-dist', 'standard_fonts');
 
 export async function extractTextFromPDF(buffer) {
   try {
-    const data = await pdfParse(buffer);
-    return data.text || '';
+    const loadingTask = getDocument({
+      data: new Uint8Array(buffer),
+      useWorker: false,
+      standardFontDataUrl: standardFontDataUrl + '/',
+    });
+    const doc = await loadingTask.promise;
+    let text = '';
+    for (let i = 1; i <= doc.numPages; i++) {
+      const page = await doc.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map((item) => item.str).join('\n');
+    }
+    return text || '';
   } catch (error) {
     console.error('PDF parsing error:', error);
     throw new Error('Could not parse PDF file. Please make sure it is a valid PDF document.');

@@ -29,6 +29,12 @@ export interface CareerGoal {
   preferredLocation: string;
 }
 
+export interface CareerPreference {
+  selectedCareerId: string | null;
+  interests: string[];
+  careerDiscoveryCompleted: boolean;
+}
+
 export interface Skill {
   id?: string;
   name: string;
@@ -178,6 +184,7 @@ export interface UserProfile {
   publications: Publication[];
   resume: ResumeData;
   analytics: CareerAnalytics;
+  careerPreferences: CareerPreference;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -341,6 +348,11 @@ export const emptyUserProfile: Omit<UserProfile, "id"> = {
   hackathons: [],
   awards: [],
   publications: [],
-  resume: { ...emptyResumeData },
+   resume: { ...emptyResumeData },
   analytics: { ...emptyCareerAnalytics },
+  careerPreferences: {
+    selectedCareerId: null,
+    interests: [],
+    careerDiscoveryCompleted: false,
+  },
 };

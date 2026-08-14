@@ -17,6 +17,9 @@ import InternshipsPage from '@/pages/student/InternshipsPage';
 import ResumeBuilder from '@/pages/student/ResumeBuilder';
 import CareerReadinessEngine from '@/pages/student/CareerReadinessEngine';
 import ProfileCompleteness from '@/pages/student/ProfileCompleteness';
+import CareerDiscovery from '@/pages/student/CareerDiscovery';
+import CareerDetails from '@/pages/student/CareerDetails';
+import SkillGap from '@/pages/student/SkillGap';
 import LandingPage from '@/pages/LandingPage';
 import LoginPage from '@/pages/Auth/LoginPage';
 import RegisterPage from '@/pages/Auth/RegisterPage';
@@ -68,6 +71,31 @@ function buildRoutes(): RouteObject[] {
       children: [
         { index: true, element: <StudentDashboard /> },
         { path: 'resume-analysis', element: <ResumeAnalysis /> },
+      ],
+    },
+    {
+      id: 'career-discovery',
+      path: '/career-discovery',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <CareerDiscovery /> },
+        { path: ':careerId', element: <CareerDetails /> },
+      ],
+    },
+    {
+      id: 'skill-gap',
+      path: '/skill-gap',
+      element: (
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        { index: true, element: <SkillGap /> },
       ],
     },
     {

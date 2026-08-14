@@ -5,7 +5,7 @@ if (!process.env.GEMINI_API_KEY) {
 }
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
 const SYSTEM_PROMPT = `You are an expert career coach and resume analyst. Analyze the provided resume text and return ONLY valid JSON matching this exact schema. Do not include markdown, code fences, or any explanatory text.
 
