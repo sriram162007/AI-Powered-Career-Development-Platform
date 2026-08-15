@@ -29,7 +29,7 @@ export default function PricingPage() {
   const individualPlans = Object.values(INDIVIDUAL_PLANS);
   const institutionPlans = Object.values(INSTITUTION_PLANS);
 
-  const featureCategories = [
+  const featureCategories: { name: string; keys: FeatureKey[] }[] = [
     {
       name: "Career Tools",
       keys: ["career_discovery", "career_matching", "skill_gap", "career_roadmap", "action_plan", "career_readiness"],
@@ -133,7 +133,6 @@ export default function PricingPage() {
         {selectedTab === "institution" && (
           <InstitutionPlansSection
             plans={institutionPlans}
-            currentPlan={currentPlan?.key || "free"}
             onPlanSelect={handlePlanSelect}
           />
         )}
@@ -152,7 +151,6 @@ export default function PricingPage() {
           <div className="overflow-x-auto">
             <FeatureComparisonTable
               individualPlans={individualPlans}
-              institutionPlans={institutionPlans}
               featureCategories={featureCategories}
               getFeatureStatus={getFeatureStatus}
             />
@@ -268,11 +266,9 @@ function IndividualPlansSection({
 
 function InstitutionPlansSection({
   plans,
-  _currentPlan,
   onPlanSelect,
 }: {
   plans: PricingPlan[];
-  _currentPlan: string;
   onPlanSelect: (planKey: string) => void;
 }) {
   return (
@@ -381,12 +377,10 @@ function InstitutionPlansSection({
 
 function FeatureComparisonTable({
   individualPlans,
-  _institutionPlans,
   featureCategories,
   getFeatureStatus,
 }: {
   individualPlans: PricingPlan[];
-  _institutionPlans: PricingPlan[];
   featureCategories: { name: string; keys: FeatureKey[] }[];
   getFeatureStatus: (planKey: string, featureKey: FeatureKey) => string;
 }) {

@@ -4,6 +4,12 @@ import { subscribeToProfile, saveSubscription } from "@/lib/firestore";
 import type { UserProfile, PlanType, Subscription, Usage } from "@/types/profile";
 import { ALL_PLANS, isFeatureEnabled, canAccessPlan, getFeatureLimit, type FeatureKey } from "@/config/pricing";
 
+const USAGE_LIMIT_KEY_MAP: Record<string, keyof Usage> = {
+  resume_analyses: "resumeAnalysesThisMonth",
+  ai_improvements: "aiImprovementsThisMonth",
+  mock_interviews: "mockInterviewsThisMonth",
+};
+
 export function useSubscription() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -52,12 +58,6 @@ export function useSubscription() {
     },
     [plan]
   );
-
-  const USAGE_LIMIT_KEY_MAP: Record<string, keyof Usage> = {
-    resume_analyses: "resumeAnalysesThisMonth",
-    ai_improvements: "aiImprovementsThisMonth",
-    mock_interviews: "mockInterviewsThisMonth",
-  };
 
   const checkUsageLimit = useCallback(
     (limitKey: string): { allowed: boolean; remaining: number | null } => {

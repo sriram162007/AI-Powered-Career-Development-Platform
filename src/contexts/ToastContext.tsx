@@ -4,7 +4,7 @@ import { createContext, type ReactNode, useContext, useState, useCallback, useRe
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CheckCircle2, AlertCircle, Info, Sparkles } from "lucide-react";
 
-type ToastType = "success" | "error" | "info" | "loading";
+type ToastType = "success" | "error" | "info" | "warning" | "loading";
 
 interface Toast {
   id: string;
@@ -64,7 +64,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                       ? "bg-red-100 text-red-600"
                       : toast.type === "loading"
                         ? "bg-orange-100 text-orange-600"
-                        : "bg-blue-100 text-blue-600"
+                        : toast.type === "warning"
+                          ? "bg-yellow-100 text-yellow-600"
+                          : "bg-blue-100 text-blue-600"
                 }`}
               >
                 {toast.type === "success" && <CheckCircle2 size={16} />}
@@ -77,6 +79,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                     <Sparkles size={16} />
                   </motion.div>
                 )}
+                {toast.type === "warning" && <AlertCircle size={16} />}
                 {toast.type === "info" && <Info size={16} />}
               </div>
               <p className="flex-1 text-sm font-medium text-navy-900">{toast.message}</p>
