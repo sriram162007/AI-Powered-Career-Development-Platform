@@ -1,0 +1,7 @@
+{
+  "projects": "ai-powered-career-development",
+  "targets": {},
+  "firestore": {
+    "indexes": "firestore.indexes.json"
+  }
+}

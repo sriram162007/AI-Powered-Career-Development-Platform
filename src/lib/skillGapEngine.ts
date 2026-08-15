@@ -208,9 +208,37 @@ export function calculateSkillGap(
 
   const gaps = allSkills.filter((s) => s.status === "MISSING" || s.status === "DEVELOPING");
 
-  const highPriorityGaps = gaps.filter((g) => g.priority === "HIGH");
-  const mediumPriorityGaps = gaps.filter((g) => g.priority === "MEDIUM");
-  const lowPriorityGaps = gaps.filter((g) => g.priority === "LOW");
+  const deduplicateSkills = (items: SkillGapItem[]): SkillGapItem[] => {
+    const seen = new Map<string, SkillGapItem>();
+    const priorityRank = { HIGH: 0, MEDIUM: 1, LOW: 2 };
+    const proficiencyRank = { None: 0, Beginner: 1, Intermediate: 2, Advanced: 3 };
+
+    for (const item of items) {
+      const key = item.normalizedName;
+      const existing = seen.get(key);
+      if (!existing) {
+        seen.set(key, item);
+      } else {
+        if (proficiencyRank[item.studentLevel] > proficiencyRank[existing.studentLevel]) {
+          seen.set(key, item);
+        } else if (
+          proficiencyRank[item.studentLevel] === proficiencyRank[existing.studentLevel] &&
+          priorityRank[item.priority] < priorityRank[existing.priority]
+        ) {
+          seen.set(key, item);
+        }
+      }
+    }
+
+    return Array.from(seen.values());
+  };
+
+  const uniqueCurrentSkills = deduplicateSkills(currentSkills);
+  const uniqueGaps = deduplicateSkills(gaps);
+
+  const highPriorityGaps = uniqueGaps.filter((g) => g.priority === "HIGH");
+  const mediumPriorityGaps = uniqueGaps.filter((g) => g.priority === "MEDIUM");
+  const lowPriorityGaps = uniqueGaps.filter((g) => g.priority === "LOW");
 
   const totalRequirements = requirements.length;
   const coveredRequirements = allSkills.filter((s) => s.status === "STRONG").length;
@@ -266,8 +294,8 @@ const coverageBreakdown: CoverageBreakdown = {
     careerName: career.name,
     coverageScore,
     coverageBreakdown: coverageBreakdown,
-    currentSkills,
-    gaps,
+    currentSkills: uniqueCurrentSkills,
+    gaps: uniqueGaps,
     highPriorityGaps,
     mediumPriorityGaps,
     lowPriorityGaps,

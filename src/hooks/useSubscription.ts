@@ -53,13 +53,20 @@ export function useSubscription() {
     [plan]
   );
 
+  const USAGE_LIMIT_KEY_MAP: Record<string, keyof Usage> = {
+    resume_analyses: "resumeAnalysesThisMonth",
+    ai_improvements: "aiImprovementsThisMonth",
+    mock_interviews: "mockInterviewsThisMonth",
+  };
+
   const checkUsageLimit = useCallback(
     (limitKey: string): { allowed: boolean; remaining: number | null } => {
       if (!profile || !usage) {
         return { allowed: true, remaining: null };
       }
 
-      const current = usage[limitKey as keyof Usage] as number | undefined;
+      const usageField = USAGE_LIMIT_KEY_MAP[limitKey] || (limitKey as keyof Usage);
+      const current = usage[usageField] as number | undefined;
       if (current === undefined) return { allowed: true, remaining: null };
 
       const limitValue = getFeatureLimit(plan, "" as FeatureKey, limitKey);
