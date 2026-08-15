@@ -1,27 +1,42 @@
-import { LandingNavbar } from '@/components/landing/LandingNavbar';
-import { Hero } from '@/components/landing/Hero';
-import { Features } from '@/components/landing/Features';
-import { HowItWorks } from '@/components/landing/HowItWorks';
-import { AITechnologies } from '@/components/landing/AITechnologies';
-import { Pricing } from '@/components/landing/Pricing';
-import { Testimonials } from '@/components/landing/Testimonials';
-import { FAQ } from '@/components/landing/FAQ';
-import { Footer } from '@/components/landing/Footer';
+import { PublicNavbar } from "@/components/landing/PublicNavbar";
+import { LandingBackground } from "@/components/landing/LandingBackground";
+import { HeroSection } from "@/components/landing/HeroSection";
+import { HumanQuestions } from "@/components/landing/HumanQuestions";
+import { ProblemSection } from "@/components/landing/ProblemSection";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { FeatureShowcase } from "@/components/landing/FeatureShowcase";
+import { PlatformVisual } from "@/components/landing/PlatformVisual";
+import { IndiaContext } from "@/components/landing/IndiaContext";
+import { CareerPaths } from "@/components/landing/CareerPaths";
+import { StudentJourney } from "@/components/landing/StudentJourney";
+import { CollegeInstitutionSection } from "@/components/landing/CollegeInstitutionSection";
+import { PricingSection } from "@/components/landing/PricingSection";
+import { TrustSection } from "@/components/landing/TrustSection";
+import { FAQSection } from "@/components/landing/FAQSection";
+import { FinalCTA } from "@/components/landing/FinalCTA";
+import { PublicFooter } from "@/components/landing/PublicFooter";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-navy-900 font-sans antialiased text-white">
-      <LandingNavbar />
+    <LandingBackground>
+      <PublicNavbar />
       <main>
-        <Hero />
-        <Features />
+        <HeroSection />
+        <HumanQuestions />
+        <ProblemSection />
         <HowItWorks />
-        <AITechnologies />
-        <Pricing />
-        <Testimonials />
-        <FAQ />
+        <FeatureShowcase />
+        <PlatformVisual />
+        <IndiaContext />
+        <CareerPaths />
+        <StudentJourney />
+        <CollegeInstitutionSection />
+        <PricingSection />
+        <TrustSection />
+        <FAQSection />
+        <FinalCTA />
       </main>
-      <Footer />
-    </div>
+      <PublicFooter />
+    </LandingBackground>
   );
 }
