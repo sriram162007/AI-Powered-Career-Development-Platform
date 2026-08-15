@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import Button from "@/components/ui/Button";
 import { cn } from "@/utils/cn";
 
@@ -139,36 +140,53 @@ export function PublicNavbar() {
           </button>
         </div>
 
-        {mobileOpen && (
-          <div
-            className={cn(
-              "md:hidden border-t border-navy-200/30 py-4 space-y-3",
-              "bg-white/95 backdrop-blur-md"
-            )}
-          >
-            {navItems.map((item) => (
-              <div key={item.href} className="px-2">
-                <AnchorLink
-                  href={item.href}
-                  label={item.label}
-                  onClick={() => setMobileOpen(false)}
-                />
-              </div>
-            ))}
-            <div className="flex flex-col gap-3 pt-2 px-2">
-              <Link to="/login" onClick={() => setMobileOpen(false)}>
-                <Button variant="outline" size="sm" fullWidth>
-                  Login
-                </Button>
-              </Link>
-              <Link to="/register" onClick={() => setMobileOpen(false)}>
-                <Button size="sm" fullWidth>
-                  Get Started
-                </Button>
-              </Link>
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {mobileOpen && (
+            <>
+              <motion.div
+                className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMobileOpen(false)}
+              />
+              <motion.div
+                className={cn(
+                  "fixed top-0 left-0 h-dvh w-64 bg-white border-r border-navy-200/30 z-50 md:hidden",
+                  "flex flex-col pt-16 pb-6 overflow-y-auto"
+                )}
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ type: "tween", duration: 0.3, ease: "easeOut" }}
+              >
+                <div className="space-y-2 px-4 pb-6">
+                  {navItems.map((item) => (
+                    <div key={item.href} className="px-2">
+                      <AnchorLink
+                        href={item.href}
+                        label={item.label}
+                        onClick={() => setMobileOpen(false)}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-col gap-3 pt-4 px-4 mt-auto">
+                  <Link to="/login" onClick={() => setMobileOpen(false)}>
+                    <Button variant="outline" size="lg" fullWidth>
+                      Login
+                    </Button>
+                  </Link>
+                  <Link to="/register" onClick={() => setMobileOpen(false)}>
+                    <Button size="lg" fullWidth>
+                      Get Started
+                    </Button>
+                  </Link>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   );

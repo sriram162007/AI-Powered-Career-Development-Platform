@@ -233,8 +233,10 @@ const FloatingBadge = ({
         "absolute z-10 px-3 py-2 rounded-lg",
         "border border-navy-200/20 bg-white",
         "text-xs font-medium text-navy-600",
-        "shadow-sm",
-        align === "top" ? "top-3" : "bottom-3"
+        "shadow-sm hidden sm:block",
+        align === "top"
+          ? "top-3 right-3 sm:right-4"
+          : "bottom-3 right-3 sm:right-4"
       )}
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{
@@ -300,9 +302,9 @@ export default function InteractivePreview({ reducedMotion }: InteractivePreview
   return (
     <motion.div
       className={cn(
-        "relative rounded-xl border border-navy-200/30 bg-white p-6",
+        "relative rounded-xl border border-navy-200/30 bg-white p-4 sm:p-6",
         "shadow-sm",
-        "max-w-md w-full"
+        "w-full"
       )}
       initial={{ opacity: 0, x: 30, scale: 0.98 }}
       animate={{ opacity: 1, x: 0, scale: 1 }}

@@ -203,7 +203,7 @@ export default function SettingsPage() {
               <Card padding="lg">
                 <h3 className="text-base font-semibold text-navy-900 mb-1">Theme</h3>
                 <p className="text-xs text-navy-400 mb-4">Customize your visual preferences</p>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {[
                     { key: "light", label: "Light", icon: <Sun size={20} /> },
                     { key: "dark", label: "Dark", icon: <Moon size={20} /> },

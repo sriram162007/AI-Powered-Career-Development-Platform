@@ -66,7 +66,7 @@ export function Sidebar() {
     <aside className="h-screen w-64 bg-navy-900 text-white flex flex-col border-r border-navy-700/50 fixed inset-y-0 left-0 z-30">
       <div className="h-16 flex items-center px-6 border-b border-navy-700/50">
         <Sparkles className="w-5 h-5 text-orange-500 mr-2" />
-        <span className="text-xl font-bold tracking-tight text-white">CareerAI</span>
+        <span className="text-xl font-bold tracking-tight text-white">Career<span className="text-orange-500">Path</span></span>
       </div>
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => (

@@ -35,25 +35,20 @@ export default function RegisterPage() {
   };
 
   return (
-    <section className="min-h-screen bg-navy-900 relative overflow-hidden flex flex-col">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-orange-500/10 via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-navy-700/40 via-transparent to-transparent" />
-      <div
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
-      />
+    <section className="min-h-screen bg-[#f8fafc] flex flex-col">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-64 h-64 bg-orange-200/15 rounded-full blur-3xl" />
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-navy-300/5 rounded-full blur-3xl" />
+      </div>
 
       <header className="relative z-10">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center">
           <Link to="/" className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 text-white">
               <Sparkles size={18} />
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">
-              Career<span className="text-orange-500">AI</span>
+            <span className="text-xl font-bold tracking-tight text-navy-900">
+              Career<span className="text-orange-500">Path</span>
             </span>
           </Link>
         </div>
@@ -66,14 +61,14 @@ export default function RegisterPage() {
           transition={{ duration: 0.6 }}
           className="w-full max-w-md"
         >
-          <div className="bg-navy-800/50 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl">
+          <div className="bg-white border border-navy-200/30 rounded-2xl p-8 shadow-sm">
             <div className="text-center mb-8">
               <motion.div
                 variants={fadeUp}
                 initial="hidden"
                 animate="visible"
                 custom={0}
-                className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-600/20 text-orange-400 mb-4"
+                className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-orange-50 text-orange-500 mb-4"
               >
                 <Sparkles size={24} />
               </motion.div>
@@ -82,7 +77,7 @@ export default function RegisterPage() {
                 initial="hidden"
                 animate="visible"
                 custom={1}
-                className="text-2xl font-bold text-white"
+                className="text-2xl font-bold text-navy-900"
               >
                 Create your account
               </motion.h1>
@@ -91,9 +86,9 @@ export default function RegisterPage() {
                 initial="hidden"
                 animate="visible"
                 custom={2}
-                className="mt-2 text-sm text-navy-300"
+                className="mt-2 text-sm text-navy-500"
               >
-                Start your AI-powered career journey today.
+                Start your practical career journey today.
               </motion.p>
             </div>
 
@@ -119,7 +114,7 @@ export default function RegisterPage() {
               </Button>
 
               {error && (
-                <p className="text-xs text-red-400 text-center">{error}</p>
+                <p className="text-xs text-red-500 text-center">{error}</p>
               )}
             </motion.div>
 
@@ -128,10 +123,10 @@ export default function RegisterPage() {
               initial="hidden"
               animate="visible"
               custom={4}
-              className="mt-6 text-center text-sm text-navy-300"
+              className="mt-6 text-center text-sm text-navy-500"
             >
               Already have an account?{" "}
-              <Link to="/login" className="font-medium text-orange-400 hover:text-orange-300 transition-colors">
+              <Link to="/login" className="font-medium text-orange-500 hover:text-orange-600 transition-colors">
                 Sign in
               </Link>
             </motion.p>
@@ -139,10 +134,10 @@ export default function RegisterPage() {
         </motion.div>
       </main>
 
-      <footer className="relative z-10 border-t border-white/5">
+      <footer className="relative z-10 border-t border-navy-200/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 text-center">
-          <p className="text-xs text-navy-500">
-            CareerAI Inc. All rights reserved.
+          <p className="text-xs text-navy-400">
+            CareerPath Inc. All rights reserved.
           </p>
         </div>
       </footer>

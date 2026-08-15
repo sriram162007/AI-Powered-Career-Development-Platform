@@ -4,11 +4,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { ALL_PLANS } from "@/config/pricing";
 import { useNavigate } from "react-router-dom";
+import { useMobileSidebar } from "@/contexts/MobileSidebarContext";
 
 export function Navbar() {
   const { user } = useAuth();
   const { plan } = useSubscription();
   const navigate = useNavigate();
+  const { toggle } = useMobileSidebar();
 
   const planInfo = useMemo(() => ALL_PLANS[plan] || ALL_PLANS["free"], [plan]);
 
@@ -35,9 +37,13 @@ export function Navbar() {
   };
 
   return (
-    <header className="h-16 bg-white/80 backdrop-blur-sm border-b border-navy-200 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-10">
+    <header className="h-16 bg-white border-b border-navy-200 flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-20">
       <div className="flex items-center gap-4 flex-1">
-        <button className="lg:hidden p-2 text-navy-400 hover:text-navy-600 transition-colors">
+        <button
+          className="lg:hidden p-2 text-navy-400 hover:text-navy-600 hover:bg-navy-50 rounded-lg transition-colors"
+          onClick={toggle}
+          aria-label="Toggle navigation"
+        >
           <Menu size={20} />
         </button>
         <div className="relative max-w-md w-full hidden sm:block">
@@ -49,6 +55,7 @@ export function Navbar() {
           />
         </div>
       </div>
+
       <div className="flex items-center gap-2 sm:gap-4">
         <button className="relative p-2 text-navy-400 hover:text-navy-600 hover:bg-navy-50 rounded-lg transition-colors">
           <Bell size={20} />

@@ -35,10 +35,16 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-navy-50, #f8fafc);
+  color: var(--text-primary, #0f172a);
 }
